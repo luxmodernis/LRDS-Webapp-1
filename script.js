@@ -169,16 +169,14 @@ function preloadModalImages() {
 }
 
 async function preloadModalText(modal) {
-  const cache = modalCache[modal.id] = { title: '', text: '', consigne: '' };
+  const cache = modalCache[modal.id] = { title: '', text: '' };
   try {
-    const [tR, xR, cR] = await Promise.all([
-      modal.titleFile    ? fetch(modal.titleFile).catch(() => null)    : null,
-      modal.textFile     ? fetch(modal.textFile).catch(() => null)     : null,
-      modal.consigneFile ? fetch(modal.consigneFile).catch(() => null) : null,
+    const [tR, xR] = await Promise.all([
+      modal.titleFile ? fetch(modal.titleFile).catch(() => null) : null,
+      modal.textFile  ? fetch(modal.textFile).catch(() => null)  : null,
     ]);
-    if (tR && tR.ok) cache.title    = (await tR.text()).trim().replace(/\n/g, '<br>');
-    if (xR && xR.ok) cache.text     = await xR.text();
-    if (cR && cR.ok) cache.consigne = (await cR.text()).trim();
+    if (tR && tR.ok) cache.title = (await tR.text()).trim().replace(/\n/g, '<br>');
+    if (xR && xR.ok) cache.text  = await xR.text();
   } catch (e) { /* silencieux */ }
 }
 
@@ -326,7 +324,7 @@ function openModal(id) {
   const cache = modalCache[id] || {};
   dom.modalTitle.innerHTML   = cache.title   || '';
   dom.modalText.innerHTML    = cache.text    || '';
-  dom.modalConsigne.textContent = cache.consigne || 'Entraînez-vous';
+  dom.modalConsigne.textContent = state.config.consigneDefault || 'Entraînez-vous à présenter ce soin en utilisant l\'étiquette';
 
   // Images (préchargées — pas de cache-busting)
   dom.modalImg.src         = modal.image    || '';
