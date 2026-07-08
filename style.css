@@ -127,8 +127,7 @@ img {
    PANORAMIC SECTION
    =========================== */
 .panoramic-section {
-  flex: 2 0 auto;
-  min-height: 50vh;
+  flex: 0 0 58dvh;
   position: relative;
   overflow: hidden;
 }

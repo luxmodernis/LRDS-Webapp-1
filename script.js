@@ -317,8 +317,13 @@ function openModal(id) {
   dom.modalImg.src      = modal.image || '';
   dom.modalLabelImg.src = modal.label || '';
 
-  // Fade in immédiat
-  requestAnimationFrame(() => dom.modalOverlay.classList.add('open'));
+  // Double-rAF : attend que le contenu soit peint avant de démarrer le fade
+  const openOverlay = () => dom.modalOverlay.classList.add('open');
+  if (modal.image && dom.modalImg.decode) {
+    dom.modalImg.decode().then(openOverlay).catch(openOverlay);
+  } else {
+    requestAnimationFrame(() => requestAnimationFrame(openOverlay));
+  }
 
   markVisited(id);
   checkCompletion();
