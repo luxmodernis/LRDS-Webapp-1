@@ -1,5 +1,5 @@
 {
-  "panoramic": "content/slides/panoramic.svg",
+  "panoramic": "content/slides/panoramic.webp",
   "instructionDefault": "Explorer la panoramique et cliquez sur tous les PLUS pour découvrir les soins.",
   "instructionComplete": "Vous avez visité tous les soins.",
   "labelQuit": "QUITTER",
