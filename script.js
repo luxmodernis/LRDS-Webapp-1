@@ -196,14 +196,14 @@ function computeScrollBounds() {
 function setScrollX(x) {
   x = Math.max(0, Math.min(state.maxScrollX, x));
   state.scrollX = x;
-  dom.panoramicTrack.style.transform = `translateX(${-x}px)`;
+  dom.panoramicTrack.style.transform = `translate3d(${-x}px, 0, 0)`;
   updateProgress(x);
 }
 
 function updateProgress(x) {
   if (state.maxScrollX === 0) return;
   const ratio = x / state.maxScrollX;
-  dom.progressDot.style.left = (ratio * progressMaxLeft) + 'px';
+  dom.progressDot.style.transform = `translate3d(${ratio * progressMaxLeft}px, 0, 0)`;
 }
 
 /* ===========================

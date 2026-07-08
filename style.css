@@ -213,6 +213,7 @@ img {
   background: #000;
   border-radius: 8px;
   pointer-events: none;
+  will-change: transform;
 }
 
 /* ===========================
