@@ -337,8 +337,6 @@ const scrollRange = document.getElementById('scroll-range');
 const scrollPct = document.getElementById('scroll-pct');
 const positionsList = document.getElementById('positions-list');
 const jsonOutput = document.getElementById('json-output');
-const copyBtn = document.getElementById('copy-btn');
-const copyConfirm = document.getElementById('copy-confirm');
 
 async function init() {
   config = await fetch('/content/config.json').then(r => r.json());
