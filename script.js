@@ -42,13 +42,12 @@ function initPasswordGate() {
    ASSETS
    =========================== */
 const ASSETS = {
-  panoramic:         'content/slides/panoramic.png',
-  logoPattern:       'assets/logo.svg',
-  plusBlackCircle:   'assets/plus-black-circle.svg',
-  plusBlackIcon:     'assets/plus-black-icon.svg',
-  plusWhiteCircle:   'assets/plus-white-circle.svg',
-  plusWhiteIcon:     'assets/plus-white-icon.svg',
-  crossIcon:         'assets/cross-icon.svg',
+  panoramic:       'content/slides/panoramic.webp',
+  logoPattern:     'assets/logo.svg',
+  plusBlackCircle: 'assets/plus-black-circle.svg',
+  plusBlackIcon:   'assets/plus-black-icon.svg',
+  plusWhiteCircle: 'assets/plus-white-circle.svg',
+  plusWhiteIcon:   'assets/plus-white-icon.svg',
 };
 
 /* ===========================
@@ -67,6 +66,7 @@ const state = {
   introComplete: false,
   animating: false,
   progressDragging: false,
+  allVisited: false,
 };
 
 /* ===========================
@@ -74,28 +74,28 @@ const state = {
    =========================== */
 const $ = id => document.getElementById(id);
 const dom = {
-  app: $('app'),
-  instructionText: $('instructionText'),
+  app:              $('app'),
+  instructionText:  $('instructionText'),
   panoramicWrapper: $('panoramicWrapper'),
-  panoramicTrack: $('panoramicTrack'),
-  panoramicImg: $('panoramicImg'),
-  progressTrack: $('progressTrack'),
-  progressDot: $('progressDot'),
-  btnQuitWrap: $('btnQuitWrap'),
-  btnQuit: $('btnQuit'),
-  modalOverlay: $('modalOverlay'),
-  modalImg: $('modalImg'),
-  modalTitle: $('modalTitle'),
-  modalText: $('modalText'),
-  modalContentPanel: $('modalContentPanel'),
-  modalPanelsTrack: $('modalPanelsTrack'),
-  modalLabelPanel: $('modalLabelPanel'),
-  modalConsigne: $('modalConsigne'),
-  modalLabelImg: $('modalLabelImg'),
-  modalToggleBtn: $('modalToggleBtn'),
-  toggleBtnCircle: $('toggleBtnCircle'),
-  toggleBtnIcon: $('toggleBtnIcon'),
-  btnRetour: $('btnRetour'),
+  panoramicTrack:   $('panoramicTrack'),
+  panoramicImg:     $('panoramicImg'),
+  progressTrack:    $('progressTrack'),
+  progressDot:      $('progressDot'),
+  btnQuitWrap:      $('btnQuitWrap'),
+  btnQuit:          $('btnQuit'),
+  modalOverlay:     $('modalOverlay'),
+  modalImg:         $('modalImg'),
+  modalTitle:       $('modalTitle'),
+  modalText:        $('modalText'),
+  modalContentPanel:$('modalContentPanel'),
+  modalPanelsArea:  $('modalPanelsArea'),
+  modalLabelPanel:  $('modalLabelPanel'),
+  modalConsigne:    $('modalConsigne'),
+  modalLabelImg:    $('modalLabelImg'),
+  modalToggleBtn:   $('modalToggleBtn'),
+  toggleBtnCircle:  $('toggleBtnCircle'),
+  toggleBtnIcon:    $('toggleBtnIcon'),
+  btnRetour:        $('btnRetour'),
 };
 
 /* ===========================
@@ -178,7 +178,7 @@ function updateProgress(x) {
 }
 
 /* ===========================
-   INTRO ANIMATION — pan lent
+   INTRO ANIMATION — pan lent 4s
    =========================== */
 function playIntroAnimation() {
   setScrollX(state.maxScrollX);
@@ -187,7 +187,7 @@ function playIntroAnimation() {
   setTimeout(() => {
     dom.panoramicTrack.classList.add('is-animating');
     dom.panoramicTrack.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
-    dom.panoramicTrack.style.transform = `translateX(0px)`;
+    dom.panoramicTrack.style.transform = 'translateX(0px)';
     updateProgress(0);
     state.scrollX = 0;
 
@@ -258,14 +258,13 @@ function markVisited(id) {
   state.visited.add(id);
   const btn = getPlusBtn(id);
   if (btn) {
-    btn.classList.add('visited');
     btn.querySelector('.btn-circle').src = ASSETS.plusWhiteCircle;
     btn.querySelector('.btn-icon').src = ASSETS.plusWhiteIcon;
   }
 }
 
 /* ===========================
-   MODAL
+   MODAL — ouvre après préchargement image
    =========================== */
 async function openModal(id) {
   const modal = state.config.modals.find(m => m.id === id);
@@ -274,24 +273,44 @@ async function openModal(id) {
   state.currentModalId = id;
   state.modalLabelVisible = false;
 
-  const cb = '?_=' + Date.now();
-  dom.modalImg.src = modal.image ? modal.image + cb : '';
-  dom.modalTitle.textContent = '';
-  dom.modalText.innerHTML = '';
-  dom.modalConsigne.textContent = '';
-  dom.modalLabelImg.src = modal.label ? modal.label + cb : '';
-
-  // Reset panels to text view
-  dom.modalPanelsTrack.classList.remove('show-label');
+  // Reset panels
+  dom.modalPanelsArea.classList.remove('show-label');
   dom.modalToggleBtn.classList.remove('is-cross');
+
+  // Init toggle button assets
   dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
   dom.toggleBtnIcon.src = ASSETS.plusBlackIcon;
 
+  // Clear stale content
+  dom.modalTitle.textContent = '';
+  dom.modalText.innerHTML = '';
+  dom.modalConsigne.textContent = '';
+
+  const cb = '?_=' + Date.now();
+
+  // Preload image before opening modal
+  const imgSrc = modal.image ? modal.image + cb : '';
+  if (imgSrc) {
+    await new Promise(resolve => {
+      const preloadImg = new Image();
+      preloadImg.onload = resolve;
+      preloadImg.onerror = resolve;
+      preloadImg.src = imgSrc;
+    });
+  }
+  dom.modalImg.src = imgSrc;
+
+  // Preload label image (non-blocking)
+  if (modal.label) {
+    dom.modalLabelImg.src = modal.label + cb;
+  }
+
+  // Fetch text content in parallel
   try {
     const [titleRes, textRes, consigneRes] = await Promise.all([
-      fetch(modal.titleFile).catch(() => null),
-      fetch(modal.textFile).catch(() => null),
-      fetch(modal.consigneFile).catch(() => null),
+      modal.titleFile   ? fetch(modal.titleFile).catch(() => null)   : Promise.resolve(null),
+      modal.textFile    ? fetch(modal.textFile).catch(() => null)    : Promise.resolve(null),
+      modal.consigneFile? fetch(modal.consigneFile).catch(() => null): Promise.resolve(null),
     ]);
     if (titleRes && titleRes.ok) {
       const title = await titleRes.text();
@@ -307,7 +326,7 @@ async function openModal(id) {
     console.warn('Could not load modal content', e);
   }
 
-  // Fade in
+  // Fade in — tout est prêt
   requestAnimationFrame(() => {
     dom.modalOverlay.classList.add('open');
   });
@@ -318,50 +337,57 @@ async function openModal(id) {
 
 function closeModal() {
   dom.modalOverlay.classList.remove('open');
+
+  // After fade-out transition, clean up and reveal QUITTER if all done
   setTimeout(() => {
     state.currentModalId = null;
     state.modalLabelVisible = false;
-    dom.modalPanelsTrack.classList.remove('show-label');
-  }, 400);
+    dom.modalPanelsArea.classList.remove('show-label');
+    dom.modalToggleBtn.classList.remove('is-cross');
+
+    if (state.allVisited) {
+      // Small extra delay so QUITTER doesn't flash before modal is gone
+      setTimeout(() => showCompletionState(), 300);
+      state.allVisited = false; // prevent re-triggering
+    }
+  }, 350);
 }
 
 function toggleModalContent() {
   state.modalLabelVisible = !state.modalLabelVisible;
 
   if (state.modalLabelVisible) {
-    dom.modalPanelsTrack.classList.add('show-label');
+    dom.modalPanelsArea.classList.add('show-label');
     dom.modalToggleBtn.classList.add('is-cross');
-    dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
-    dom.toggleBtnIcon.src = ASSETS.crossIcon;
   } else {
-    dom.modalPanelsTrack.classList.remove('show-label');
+    dom.modalPanelsArea.classList.remove('show-label');
     dom.modalToggleBtn.classList.remove('is-cross');
-    dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
-    dom.toggleBtnIcon.src = ASSETS.plusBlackIcon;
   }
+  // btn-icon src stays the same — CSS rotate(45deg) makes the + look like ×
 }
 
 /* ===========================
-   COMPLETION CHECK
+   COMPLETION
    =========================== */
 function checkCompletion() {
   const total = (state.config.modals || []).length;
   if (total === 0) return;
   if (state.visited.size >= total) {
-    showCompletionState();
+    state.allVisited = true;
+    // showCompletionState() is called from closeModal() after the modal fades out
   }
 }
 
 function showCompletionState() {
   dom.instructionText.style.opacity = '0';
   setTimeout(() => {
-    dom.instructionText.textContent = state.config.instructionComplete;
+    dom.instructionText.textContent = state.config.instructionComplete || 'Vous avez visité tous les soins.';
     dom.instructionText.classList.add('centered');
     dom.instructionText.style.opacity = '1';
   }, 400);
 
   dom.btnQuitWrap.style.display = 'flex';
-  dom.btnQuit.textContent = state.config.labelQuit;
+  if (state.config.labelQuit) dom.btnQuit.textContent = state.config.labelQuit;
 }
 
 /* ===========================

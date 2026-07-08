@@ -109,7 +109,6 @@ img {
   display: flex;
   justify-content: center;
   padding: 0;
-  /* Negative margin pulls panoramic up so button center = panoramic top */
   margin-bottom: -25px;
   position: relative;
   z-index: 15;
@@ -144,7 +143,7 @@ img {
 .panoramic-img {
   height: 100%;
   width: auto;
-  max-width: none; /* override global img max-width:100% */
+  max-width: none;
   display: block;
   pointer-events: none;
   user-select: none;
@@ -265,7 +264,7 @@ img {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
 }
 .modal-overlay.open {
   opacity: 1;
@@ -283,40 +282,42 @@ img {
   overflow: hidden;
 }
 
-/* Title above image */
+/* Title above image — compact */
 .modal-title-wrap {
   flex: 0 0 auto;
-  padding: 32px 40px 12px;
+  padding: 16px 32px 10px;
   text-align: center;
 }
 .modal-title {
-  font-size: clamp(20px, 5.5vw, 24px);
+  font-size: clamp(19px, 5vw, 22px);
   font-weight: 700;
   line-height: 1.2;
   color: #000;
 }
 
-/* Image zone */
+/* Image — réduite homothétiquement, centrée */
 .modal-img-wrap {
   position: relative;
   flex: 0 0 auto;
-  width: 100%;
+  width: 84%;
+  margin: 0 auto;
 }
 .modal-img {
   width: 100%;
   aspect-ratio: 4080 / 2295;
   object-fit: cover;
   display: block;
+  border-radius: 4px;
 }
 
-/* Toggle +/X button — overlaps bottom edge of image */
+/* Toggle +/× button — overlaps bottom edge of image */
 .modal-toggle-btn {
   position: absolute;
-  bottom: -30px;
+  bottom: -28px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   padding: 0;
   background: none;
   border: none;
@@ -334,6 +335,7 @@ img {
   height: 100%;
   object-fit: contain;
 }
+/* + icon rotates 45° → becomes × */
 .modal-toggle-btn img.btn-icon {
   position: absolute;
   top: 28.33%;
@@ -341,76 +343,90 @@ img {
   width: 43.34%;
   height: 43.34%;
   object-fit: contain;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-toggle-btn.is-cross img.btn-icon {
+  transform: rotate(45deg);
 }
 
-/* Gradient below image — transition vers la zone texte */
+/* Gradient below image */
 .modal-gradient {
-  flex: 0 0 50px;
+  flex: 0 0 42px;
   background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 100%);
   pointer-events: none;
 }
 
 /* ===========================
-   MODAL PANELS TRACK — slide horizontal
+   MODAL PANELS AREA — vertical slide
+   texte visible par défaut, label monte depuis le bas
    =========================== */
-.modal-panels-track {
+.modal-panels-area {
   flex: 1 1 auto;
   min-height: 0;
-  display: flex;
+  position: relative;
   overflow: hidden;
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-.modal-panels-track.show-label {
-  transform: translateX(-100%);
 }
 
-/* Panel texte produit */
+/* Panel texte */
 .modal-content-panel {
-  flex: 0 0 100%;
-  padding: 8px 40px 20px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  position: absolute;
+  inset: 0;
+  padding: 6px 32px 0;
+  overflow: hidden;
+  transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .modal-text p {
-  font-size: clamp(15px, 4.5vw, 18px);
+  font-size: clamp(14px, 4vw, 17px);
   line-height: 1.5;
   color: #000;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .modal-text .label-section {
-  font-size: clamp(10px, 3vw, 12px);
+  font-size: clamp(9px, 2.8vw, 11px);
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-top: 16px;
+  margin-top: 14px;
   margin-bottom: 4px;
 }
 .modal-text .label-section:first-child {
   margin-top: 0;
 }
 
-/* Panel étiquette — arrive de droite, pousse le texte */
+/* Panel étiquette — part du bas, monte vers le haut */
 .modal-label-panel {
-  flex: 0 0 100%;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 8px 40px 16px;
+  gap: 10px;
+  padding: 6px 32px 0;
+  transform: translateY(100%);
+  transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
+/* Quand label actif : texte monte, label descend en place */
+.modal-panels-area.show-label .modal-content-panel {
+  transform: translateY(-100%);
+}
+.modal-panels-area.show-label .modal-label-panel {
+  transform: translateY(0);
+}
+
 .modal-consigne {
   flex: 0 0 auto;
-  font-size: clamp(15px, 4.5vw, 18px);
-  line-height: 1.5;
+  font-size: clamp(14px, 4vw, 17px);
+  line-height: 1.4;
   text-align: center;
   color: #000;
 }
 .modal-label-img {
   flex: 1 1 auto;
   min-height: 0;
-  max-width: clamp(180px, 62vw, 260px);
+  max-width: clamp(160px, 58vw, 240px);
   width: 100%;
   object-fit: contain;
   align-self: center;
@@ -423,7 +439,7 @@ img {
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
-  padding: 0 0 clamp(24px, 5vh, 40px);
+  padding: 8px 0 clamp(20px, 4vh, 36px);
 }
 
 /* ===========================

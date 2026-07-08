@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Les Rituels de Soin</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -94,32 +94,30 @@
       </button>
     </div>
 
-    <!-- Gradient below image (transition vers le texte) -->
+    <!-- Gradient below image -->
     <div class="modal-gradient"></div>
 
-    <!-- Horizontal panels track: texte | étiquette -->
-    <div class="modal-panels-track" id="modalPanelsTrack">
+    <!-- Vertical panels area : texte (default) | étiquette (from bottom) -->
+    <div class="modal-panels-area" id="modalPanelsArea">
 
-      <!-- Panel texte produit (par défaut visible) -->
       <div class="modal-content-panel" id="modalContentPanel">
         <div class="modal-text" id="modalText"></div>
       </div>
 
-      <!-- Panel étiquette (arrive de droite) -->
       <div class="modal-label-panel" id="modalLabelPanel">
         <p class="modal-consigne" id="modalConsigne"></p>
         <img src="" alt="Étiquette produit" class="modal-label-img" id="modalLabelImg" draggable="false">
       </div>
 
-    </div><!-- /.modal-panels-track -->
+    </div>
 
     <!-- Footer -->
     <div class="modal-footer">
       <button class="btn-pill" id="btnRetour">RETOUR</button>
     </div>
 
-  </div><!-- /.modal-sheet -->
-</div><!-- /.modal-overlay -->
+  </div>
+</div>
 
 
 <script src="script.js?v=4"></script>
