@@ -178,10 +178,36 @@
       flex-direction: column;
       gap: 10px;
     }
-    #export-area label { font-size: 12px; font-weight: 600; color: #333; }
+    #save-btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      align-self: flex-start;
+    }
+    #save-btn:active { opacity: 0.7; }
+    #save-btn:disabled { background: #999; cursor: default; }
+    #save-confirm {
+      font-size: 13px;
+      min-height: 1.3em;
+    }
+    #save-confirm.ok  { color: #27ae60; }
+    #save-confirm.err { color: #c00; }
+    #copy-fallback {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+    }
+    #copy-fallback summary { padding: 4px 0; user-select: none; }
     #json-output {
       width: 100%;
-      height: 180px;
+      height: 160px;
       font-family: 'SF Mono', 'Fira Mono', monospace;
       font-size: 11px;
       border: 1.5px solid #ddd;
@@ -190,24 +216,26 @@
       resize: vertical;
       color: #222;
       background: #fafafa;
+      margin-top: 8px;
     }
     #copy-btn {
-      align-self: flex-start;
-      background: #000;
+      margin-top: 6px;
+      background: #444;
       color: #fff;
       border: none;
       border-radius: 24px;
-      padding: 10px 28px;
-      font-size: 14px;
+      padding: 8px 20px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      letter-spacing: 0.05em;
     }
     #copy-btn:active { opacity: 0.7; }
     #copy-confirm {
       font-size: 12px;
       color: #27ae60;
       min-height: 1.2em;
+      display: block;
+      margin-top: 4px;
     }
 
     /* Progress strip at bottom of phone */
@@ -273,10 +301,14 @@
     <div id="positions-list"></div>
 
     <div id="export-area">
-      <label>JSON à copier dans config.json</label>
-      <textarea id="json-output" readonly></textarea>
-      <button id="copy-btn">Copier le JSON</button>
-      <span id="copy-confirm"></span>
+      <button id="save-btn">Valider les positions</button>
+      <span id="save-confirm"></span>
+      <details id="copy-fallback">
+        <summary>Copier le JSON manuellement</summary>
+        <textarea id="json-output" readonly></textarea>
+        <button id="copy-btn">Copier</button>
+        <span id="copy-confirm"></span>
+      </details>
     </div>
   </div>
 
@@ -510,6 +542,54 @@ function scrollToBtn(pos) {
   const targetScrollX = (pos.x / 100) * track.offsetWidth - section.offsetWidth / 2;
   setScrollX(targetScrollX);
 }
+
+// ─── Valider (local) / Copier (Vercel) ───
+const saveBtn     = document.getElementById('save-btn');
+const saveConfirm = document.getElementById('save-confirm');
+const copyBtn     = document.getElementById('copy-btn');
+const copyConfirm = document.getElementById('copy-confirm');
+
+const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+if (!isLocal) {
+  saveBtn.textContent = 'Copier le JSON';
+  saveBtn.title = 'Serveur local non disponible — copie manuelle';
+}
+
+saveBtn.addEventListener('click', async () => {
+  if (isLocal) {
+    // Sauvegarde directe via l'API du serveur local
+    saveBtn.disabled = true;
+    saveConfirm.className = '';
+    saveConfirm.textContent = 'Sauvegarde…';
+    try {
+      const res = await fetch('/api/save-positions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(positions),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        saveConfirm.className = 'ok';
+        saveConfirm.textContent = `✓ ${data.saved} positions sauvegardées dans config.json`;
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (e) {
+      saveConfirm.className = 'err';
+      saveConfirm.textContent = '✗ Erreur : ' + e.message;
+    }
+    saveBtn.disabled = false;
+    setTimeout(() => { saveConfirm.textContent = ''; }, 4000);
+  } else {
+    // Fallback : copie dans le presse-papier
+    navigator.clipboard.writeText(jsonOutput.value).then(() => {
+      saveConfirm.className = 'ok';
+      saveConfirm.textContent = 'JSON copié dans le presse-papier !';
+      setTimeout(() => { saveConfirm.textContent = ''; }, 2000);
+    });
+  }
+});
 
 copyBtn.addEventListener('click', () => {
   navigator.clipboard.writeText(jsonOutput.value).then(() => {
