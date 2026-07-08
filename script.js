@@ -10,7 +10,6 @@ function initPasswordGate() {
   const submitBtn = document.getElementById('pwSubmit');
   const errorEl = document.getElementById('pwError');
 
-  // Already unlocked this session → skip gate
   if (sessionStorage.getItem(PW_SESSION_KEY) === '1') {
     gate.classList.add('unlocked');
     gate.addEventListener('transitionend', () => { gate.hidden = true; }, { once: true });
@@ -28,9 +27,8 @@ function initPasswordGate() {
       errorEl.textContent = 'Mot de passe incorrect.';
       input.value = '';
       input.focus();
-      // Shake animation
       input.classList.remove('shake');
-      void input.offsetWidth; // reflow
+      void input.offsetWidth;
       input.classList.add('shake');
     }
   }
@@ -41,14 +39,11 @@ function initPasswordGate() {
 }
 
 /* ===========================
-   ASSETS — chemins relatifs, tous embarqués localement
-   Remplacer les placeholders par les vrais exports Figma avant packaging SCORM
+   ASSETS
    =========================== */
 const ASSETS = {
   panoramic:         'content/slides/panoramic.png',
   logoPattern:       'assets/logo.svg',
-  headerCloseCircle: 'assets/close-circle.svg',
-  headerCloseIcon:   'assets/close-icon.svg',
   plusBlackCircle:   'assets/plus-black-circle.svg',
   plusBlackIcon:     'assets/plus-black-icon.svg',
   plusWhiteCircle:   'assets/plus-white-circle.svg',
@@ -71,6 +66,7 @@ const state = {
   dragScrollX: 0,
   introComplete: false,
   animating: false,
+  progressDragging: false,
 };
 
 /* ===========================
@@ -83,6 +79,7 @@ const dom = {
   panoramicWrapper: $('panoramicWrapper'),
   panoramicTrack: $('panoramicTrack'),
   panoramicImg: $('panoramicImg'),
+  progressTrack: $('progressTrack'),
   progressDot: $('progressDot'),
   btnQuitWrap: $('btnQuitWrap'),
   btnQuit: $('btnQuit'),
@@ -91,6 +88,7 @@ const dom = {
   modalTitle: $('modalTitle'),
   modalText: $('modalText'),
   modalContentPanel: $('modalContentPanel'),
+  modalPanelsTrack: $('modalPanelsTrack'),
   modalLabelPanel: $('modalLabelPanel'),
   modalConsigne: $('modalConsigne'),
   modalLabelImg: $('modalLabelImg'),
@@ -106,12 +104,8 @@ const dom = {
 async function init() {
   state.config = await loadConfig();
 
-  // Set logo
   document.querySelector('.logo-img').src = ASSETS.logoPattern;
-  document.querySelector('.header-close .close-circle').src = ASSETS.headerCloseCircle;
-  document.querySelector('.header-close .close-icon').src = ASSETS.headerCloseIcon;
 
-  // Set panoramic image (config overrides ASSETS fallback)
   const panoramicSrc = state.config.panoramic || ASSETS.panoramic;
   await new Promise(resolve => {
     dom.panoramicImg.src = panoramicSrc;
@@ -119,19 +113,19 @@ async function init() {
       resolve();
     } else {
       dom.panoramicImg.onload = resolve;
-      dom.panoramicImg.onerror = resolve; // resolve anyway to not block
+      dom.panoramicImg.onerror = resolve;
     }
   });
 
   computeScrollBounds();
   renderPlusButtons();
   setupDrag();
+  setupProgressBar();
   setupModalToggle();
   setupRetour();
   setupQuit();
   window.addEventListener('resize', onResize);
 
-  // Start at the right end, then pan left
   playIntroAnimation();
 }
 
@@ -176,44 +170,37 @@ function setScrollX(x, animated = false) {
 
 function updateProgress(x) {
   if (state.maxScrollX === 0) return;
-  const trackEl = document.querySelector('.progress-track');
-  const dotEl = dom.progressDot;
-  const trackW = trackEl.offsetWidth;
-  const dotW = dotEl.offsetWidth;
+  const trackW = dom.progressTrack.offsetWidth;
+  const dotW = dom.progressDot.offsetWidth;
   const ratio = x / state.maxScrollX;
   const maxLeft = trackW - dotW;
-  dotEl.style.left = (ratio * maxLeft) + 'px';
+  dom.progressDot.style.left = (ratio * maxLeft) + 'px';
 }
 
 /* ===========================
-   INTRO ANIMATION
+   INTRO ANIMATION — pan lent
    =========================== */
 function playIntroAnimation() {
-  // Start at far right
   setScrollX(state.maxScrollX);
   state.animating = true;
 
-  // After brief pause, animate to 0 (left)
   setTimeout(() => {
     dom.panoramicTrack.classList.add('is-animating');
-    dom.panoramicTrack.style.transition = 'transform 2.4s cubic-bezier(0.4, 0, 0.2, 1)';
-    setScrollX(0, false);
+    dom.panoramicTrack.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
     dom.panoramicTrack.style.transform = `translateX(0px)`;
     updateProgress(0);
     state.scrollX = 0;
 
-    // After pan completes, show buttons one by one
     setTimeout(() => {
       dom.panoramicTrack.style.transition = '';
       dom.panoramicTrack.classList.remove('is-animating');
       showButtonsSequentially();
-    }, 2500);
-  }, 300);
+    }, 4300);
+  }, 400);
 }
 
 function showButtonsSequentially() {
   const buttons = [...document.querySelectorAll('.plus-btn')];
-  // Sort by order (left-to-right = by x position)
   const sorted = buttons.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
 
   sorted.forEach((btn, i) => {
@@ -223,7 +210,7 @@ function showButtonsSequentially() {
         state.animating = false;
         state.introComplete = true;
       }
-    }, i * 280);
+    }, i * 500);
   });
 }
 
@@ -241,13 +228,11 @@ function renderPlusButtons() {
     btn.style.top = modal.position.y + '%';
     btn.setAttribute('aria-label', `Découvrir ${modal.id}`);
 
-    // Circle background
     const circle = document.createElement('img');
     circle.className = 'btn-circle';
     circle.src = ASSETS.plusBlackCircle;
     circle.alt = '';
 
-    // Plus icon
     const icon = document.createElement('img');
     icon.className = 'btn-icon';
     icon.src = ASSETS.plusBlackIcon;
@@ -289,21 +274,19 @@ async function openModal(id) {
   state.currentModalId = id;
   state.modalLabelVisible = false;
 
-  // Load content
-  dom.modalImg.src = modal.image || ASSETS.modalProduct;
+  const cb = '?_=' + Date.now();
+  dom.modalImg.src = modal.image ? modal.image + cb : '';
   dom.modalTitle.textContent = '';
   dom.modalText.innerHTML = '';
   dom.modalConsigne.textContent = '';
-  dom.modalLabelImg.src = modal.label || ASSETS.modalLabel;
+  dom.modalLabelImg.src = modal.label ? modal.label + cb : '';
 
-  // Reset panel state + set toggle button to PLUS
-  dom.modalContentPanel.classList.remove('hidden-up');
-  dom.modalLabelPanel.classList.remove('visible');
+  // Reset panels to text view
+  dom.modalPanelsTrack.classList.remove('show-label');
   dom.modalToggleBtn.classList.remove('is-cross');
   dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
   dom.toggleBtnIcon.src = ASSETS.plusBlackIcon;
 
-  // Load text files
   try {
     const [titleRes, textRes, consigneRes] = await Promise.all([
       fetch(modal.titleFile).catch(() => null),
@@ -312,26 +295,23 @@ async function openModal(id) {
     ]);
     if (titleRes && titleRes.ok) {
       const title = await titleRes.text();
-      // Handle line breaks in title
       dom.modalTitle.innerHTML = title.trim().replace(/\n/g, '<br>');
     }
     if (textRes && textRes.ok) {
       dom.modalText.innerHTML = await textRes.text();
     }
     if (consigneRes && consigneRes.ok) {
-      dom.modalConsigne.textContent = await consigneRes.text();
+      dom.modalConsigne.textContent = (await consigneRes.text()).trim();
     }
   } catch (e) {
     console.warn('Could not load modal content', e);
   }
 
-  // Open modal
-  dom.modalOverlay.hidden = false;
+  // Fade in
   requestAnimationFrame(() => {
     dom.modalOverlay.classList.add('open');
   });
 
-  // Mark as visited
   markVisited(id);
   checkCompletion();
 }
@@ -339,26 +319,22 @@ async function openModal(id) {
 function closeModal() {
   dom.modalOverlay.classList.remove('open');
   setTimeout(() => {
-    dom.modalOverlay.hidden = true;
     state.currentModalId = null;
     state.modalLabelVisible = false;
-  }, 450);
+    dom.modalPanelsTrack.classList.remove('show-label');
+  }, 400);
 }
 
 function toggleModalContent() {
   state.modalLabelVisible = !state.modalLabelVisible;
 
   if (state.modalLabelVisible) {
-    // + clicked → slide text up (hidden), show label, show X
-    dom.modalContentPanel.classList.add('hidden-up');
-    dom.modalLabelPanel.classList.add('visible');
+    dom.modalPanelsTrack.classList.add('show-label');
     dom.modalToggleBtn.classList.add('is-cross');
     dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
     dom.toggleBtnIcon.src = ASSETS.crossIcon;
   } else {
-    // X clicked → bring text back, hide label, show +
-    dom.modalContentPanel.classList.remove('hidden-up');
-    dom.modalLabelPanel.classList.remove('visible');
+    dom.modalPanelsTrack.classList.remove('show-label');
     dom.modalToggleBtn.classList.remove('is-cross');
     dom.toggleBtnCircle.src = ASSETS.plusBlackCircle;
     dom.toggleBtnIcon.src = ASSETS.plusBlackIcon;
@@ -389,17 +365,15 @@ function showCompletionState() {
 }
 
 /* ===========================
-   DRAG (panoramic)
+   DRAG — panoramique
    =========================== */
 function setupDrag() {
   const wrapper = dom.panoramicWrapper;
 
-  // Touch
   wrapper.addEventListener('touchstart', onDragStart, { passive: true });
   wrapper.addEventListener('touchmove', onDragMove, { passive: false });
   wrapper.addEventListener('touchend', onDragEnd);
 
-  // Mouse
   wrapper.addEventListener('mousedown', onDragStart);
   window.addEventListener('mousemove', onDragMove);
   window.addEventListener('mouseup', onDragEnd);
@@ -432,6 +406,41 @@ function onDragEnd() {
 }
 
 /* ===========================
+   PROGRESS BAR — cliquable & draggable
+   =========================== */
+function setupProgressBar() {
+  const track = dom.progressTrack;
+
+  function seekFromEvent(e) {
+    const rect = track.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    setScrollX(ratio * state.maxScrollX);
+  }
+
+  track.addEventListener('mousedown', e => {
+    state.progressDragging = true;
+    seekFromEvent(e);
+    e.stopPropagation();
+  });
+  track.addEventListener('touchstart', e => {
+    state.progressDragging = true;
+    seekFromEvent(e);
+    e.stopPropagation();
+  }, { passive: true });
+
+  window.addEventListener('mousemove', e => {
+    if (state.progressDragging) seekFromEvent(e);
+  });
+  window.addEventListener('touchmove', e => {
+    if (state.progressDragging) seekFromEvent(e);
+  }, { passive: true });
+
+  window.addEventListener('mouseup', () => { state.progressDragging = false; });
+  window.addEventListener('touchend', () => { state.progressDragging = false; });
+}
+
+/* ===========================
    EVENTS
    =========================== */
 function setupModalToggle() {
@@ -444,14 +453,12 @@ function setupRetour() {
 
 function setupQuit() {
   dom.btnQuit.addEventListener('click', () => {
-    // Hook SCORM exit here later
     console.log('SCORM exit');
   });
 }
 
 function onResize() {
   computeScrollBounds();
-  // Clamp current scroll to new bounds
   setScrollX(state.scrollX);
 }
 

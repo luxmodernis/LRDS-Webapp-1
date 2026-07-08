@@ -78,32 +78,6 @@ img {
   width: auto;
   object-fit: contain;
 }
-.header-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  overflow: visible;
-}
-.header-close .close-circle {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.header-close .close-icon {
-  position: absolute;
-  inset: 17%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-}
 
 /* ===========================
    INSTRUCTION TEXT
@@ -128,19 +102,31 @@ img {
 }
 
 /* ===========================
+   QUIT BUTTON — centre calé sur le haut du diapo
+   =========================== */
+.btn-quit-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  /* Negative margin pulls panoramic up so button center = panoramic top */
+  margin-bottom: -25px;
+  position: relative;
+  z-index: 15;
+}
+
+/* ===========================
    PANORAMIC SECTION
    =========================== */
 .panoramic-section {
   flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 }
 .panoramic-wrapper {
-  flex: 1 1 auto;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  position: relative;
   cursor: grab;
 }
 .panoramic-wrapper.is-dragging {
@@ -208,14 +194,18 @@ img {
 }
 
 /* ===========================
-   PROGRESS BAR
+   PROGRESS BAR — overlaid sur le diapo
    =========================== */
 .progress-bar-wrap {
-  flex: 0 0 auto;
+  position: absolute;
+  bottom: clamp(16px, 4vh, 30px);
+  left: 0;
+  right: 0;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 0 clamp(16px, 4vh, 30px);
+  pointer-events: auto;
 }
 .progress-track {
   position: relative;
@@ -224,6 +214,8 @@ img {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  cursor: pointer;
+  touch-action: none;
 }
 .progress-dot {
   position: absolute;
@@ -235,16 +227,7 @@ img {
   border-radius: 8px;
   transform: translateY(-50%);
   transition: left 0.1s linear;
-}
-
-/* ===========================
-   QUIT BUTTON — entre texte et panoramique
-   =========================== */
-.btn-quit-wrap {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: center;
-  padding: 8px 0 14px;
+  pointer-events: none;
 }
 
 /* ===========================
@@ -270,7 +253,7 @@ img {
 }
 
 /* ===========================
-   MODAL OVERLAY
+   MODAL OVERLAY — fade in/out
    =========================== */
 .modal-overlay {
   position: fixed;
@@ -280,11 +263,13 @@ img {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: translateY(100%);
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
 }
 .modal-overlay.open {
-  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ===========================
@@ -298,7 +283,20 @@ img {
   overflow: hidden;
 }
 
-/* Image zone with gradient overlay */
+/* Title above image */
+.modal-title-wrap {
+  flex: 0 0 auto;
+  padding: 32px 40px 12px;
+  text-align: center;
+}
+.modal-title {
+  font-size: clamp(20px, 5.5vw, 24px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #000;
+}
+
+/* Image zone */
 .modal-img-wrap {
   position: relative;
   flex: 0 0 auto;
@@ -309,39 +307,6 @@ img {
   aspect-ratio: 4080 / 2295;
   object-fit: cover;
   display: block;
-}
-
-/* White gradient top-to-transparent covering the image+title zone */
-.modal-gradient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: linear-gradient(to bottom,
-    #fff 0%,
-    #fff 55%,
-    rgba(255,255,255,0) 100%
-  );
-  pointer-events: none;
-}
-
-/* Title sits above the image, inside the gradient zone */
-.modal-title-wrap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 40px 40px 10px;
-  text-align: center;
-  pointer-events: none;
-}
-.modal-title {
-  font-size: clamp(20px, 5.5vw, 24px);
-  font-weight: 700;
-  line-height: 1.2;
-  color: #000;
-  text-align: center;
 }
 
 /* Toggle +/X button — overlaps bottom edge of image */
@@ -377,36 +342,34 @@ img {
   height: 43.34%;
   object-fit: contain;
 }
-.modal-toggle-btn .icon-plus { display: block; }
-.modal-toggle-btn .icon-cross { display: none; }
-.modal-toggle-btn.is-cross .icon-plus { display: none; }
-.modal-toggle-btn.is-cross .icon-cross { display: block; }
+
+/* Gradient below image — transition vers la zone texte */
+.modal-gradient {
+  flex: 0 0 50px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #fff 100%);
+  pointer-events: none;
+}
 
 /* ===========================
-   MODAL SCROLLABLE AREA
+   MODAL PANELS TRACK — slide horizontal
    =========================== */
-.modal-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  -webkit-overflow-scrolling: touch;
-  /* reserve enough height so panels can animate without collapsing */
+.modal-panels-track {
+  flex: 1 1 auto;
   min-height: 0;
+  display: flex;
+  overflow: hidden;
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.modal-panels-track.show-label {
+  transform: translateX(-100%);
 }
 
-/* Content panel (product info) */
+/* Panel texte produit */
 .modal-content-panel {
-  padding: 50px 40px 20px;
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              opacity 0.35s ease;
-}
-.modal-content-panel.hidden-up {
-  transform: translateY(-120%);
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; right: 0;
+  flex: 0 0 100%;
+  padding: 8px 40px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-text p {
@@ -427,34 +390,30 @@ img {
   margin-top: 0;
 }
 
-/* Label panel (étiquette) — hidden below scroll area until + clicked */
+/* Panel étiquette — arrive de droite, pousse le texte */
 .modal-label-panel {
+  flex: 0 0 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 50px 40px 20px;
-  transform: translateY(60px);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              opacity 0.35s ease;
-}
-.modal-label-panel.visible {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 40px 16px;
 }
 .modal-consigne {
+  flex: 0 0 auto;
   font-size: clamp(15px, 4.5vw, 18px);
   line-height: 1.5;
   text-align: center;
   color: #000;
 }
 .modal-label-img {
-  width: clamp(180px, 62vw, 241px);
-  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-width: clamp(180px, 62vw, 260px);
+  width: 100%;
   object-fit: contain;
+  align-self: center;
 }
 
 /* ===========================
@@ -476,13 +435,6 @@ img {
 }
 .plus-btn.animate-in {
   animation: fadeInBtn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* ===========================
-   STATE: ALL COMPLETE
-   =========================== */
-.plus-btn.visited .btn-circle {
-  /* white circle for visited state is handled via src swap in JS */
 }
 
 /* ===========================
