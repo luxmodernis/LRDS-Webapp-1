@@ -67,11 +67,11 @@ img {
 .header {
   position: relative;
   flex: 0 0 auto;
-  height: clamp(80px, 12vh, 110px);
+  height: clamp(70px, 10.5vh, 90px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 .logo-img {
   height: clamp(40px, 6vh, 56px);
@@ -114,7 +114,7 @@ img {
   align-items: center;
   justify-content: center;
   padding: 0 40px;
-  min-height: clamp(80px, 14.5vh, 130px);
+  min-height: clamp(70px, 13vh, 116px);
 }
 .instruction-text {
   font-size: clamp(15px, 4.5vw, 18px);
@@ -238,13 +238,13 @@ img {
 }
 
 /* ===========================
-   QUIT BUTTON
+   QUIT BUTTON — entre texte et panoramique
    =========================== */
 .btn-quit-wrap {
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
-  padding: 0 0 clamp(20px, 5vh, 40px);
+  padding: 8px 0 14px;
 }
 
 /* ===========================
