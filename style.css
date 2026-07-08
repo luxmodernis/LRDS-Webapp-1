@@ -83,12 +83,11 @@ img {
    INSTRUCTION TEXT
    =========================== */
 .text-zone {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 40px;
-  min-height: clamp(70px, 13vh, 116px);
 }
 .instruction-text {
   font-size: clamp(15px, 4.5vw, 18px);
@@ -128,7 +127,8 @@ img {
    PANORAMIC SECTION
    =========================== */
 .panoramic-section {
-  flex: 1 1 auto;
+  flex: 2 0 auto;
+  min-height: 50vh;
   position: relative;
   overflow: hidden;
 }

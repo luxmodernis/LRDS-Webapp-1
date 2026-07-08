@@ -267,7 +267,7 @@ function renderPlusButtons() {
     btn.appendChild(icon);
 
     btn.addEventListener('click', () => {
-      if (state.animating) return;
+      if (state.introPanning) return;
       openModal(modal.id);
     });
 
@@ -281,11 +281,14 @@ function getPlusBtn(id) {
 
 function markVisited(id) {
   state.visited.add(id);
-  const btn = getPlusBtn(id);
-  if (btn) {
-    btn.querySelector('.btn-circle').src = ASSETS.plusWhiteCircle;
-    btn.querySelector('.btn-icon').src = ASSETS.plusWhiteIcon;
-  }
+  // Délai pour que le changement d'état se fasse une fois la modale ouverte
+  setTimeout(() => {
+    const btn = getPlusBtn(id);
+    if (btn) {
+      btn.querySelector('.btn-circle').src = ASSETS.plusWhiteCircle;
+      btn.querySelector('.btn-icon').src = ASSETS.plusWhiteIcon;
+    }
+  }, 400);
 }
 
 /* ===========================
@@ -324,18 +327,12 @@ function openModal(id) {
 function closeModal() {
   dom.modalOverlay.classList.remove('open');
 
-  // After fade-out transition, clean up and reveal QUITTER if all done
+  // After fade-out transition, clean up
   setTimeout(() => {
     state.currentModalId = null;
     state.modalLabelVisible = false;
     dom.modalPanelsArea.classList.remove('show-label');
     dom.modalToggleBtn.classList.remove('is-cross');
-
-    if (state.allVisited) {
-      // Small extra delay so QUITTER doesn't flash before modal is gone
-      setTimeout(() => showCompletionState(), 300);
-      state.allVisited = false; // prevent re-triggering
-    }
   }, 350);
 }
 
@@ -358,9 +355,9 @@ function toggleModalContent() {
 function checkCompletion() {
   const total = (state.config.modals || []).length;
   if (total === 0) return;
-  if (state.visited.size >= total) {
+  if (state.visited.size >= total && !state.allVisited) {
     state.allVisited = true;
-    // showCompletionState() is called from closeModal() after the modal fades out
+    showCompletionState();
   }
 }
 
