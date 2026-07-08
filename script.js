@@ -63,10 +63,16 @@ const state = {
   isDragging: false,
   dragStartX: 0,
   dragScrollX: 0,
-  introComplete: false,
+  introPanning: false,   // bloque le drag pendant le pan initial uniquement
+  introComplete: false,  // tous les boutons sont apparus
   animating: false,
   progressDragging: false,
   allVisited: false,
+  // momentum
+  dragVelocity: 0,
+  dragLastX: 0,
+  dragLastTime: 0,
+  momentumActive: false,
 };
 
 /* ===========================
@@ -130,6 +136,7 @@ async function init() {
   setupQuit();
   window.addEventListener('resize', onResize);
 
+  preloadModalImages();
   playIntroAnimation();
 }
 
@@ -182,24 +189,38 @@ function updateProgress(x) {
 }
 
 /* ===========================
-   INTRO ANIMATION — pan lent 4s
+   INTRO ANIMATION — pan lent 4s via RAF (synchro barre de progression)
    =========================== */
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
 function playIntroAnimation() {
-  setScrollX(state.maxScrollX);
+  const fromX = state.maxScrollX;
+  setScrollX(fromX);
+  state.introPanning = true;
   state.animating = true;
 
-  setTimeout(() => {
-    dom.panoramicTrack.classList.add('is-animating');
-    dom.panoramicTrack.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
-    dom.panoramicTrack.style.transform = 'translateX(0px)';
-    updateProgress(0);
-    state.scrollX = 0;
+  const duration = 4000;
 
-    setTimeout(() => {
-      dom.panoramicTrack.style.transition = '';
-      dom.panoramicTrack.classList.remove('is-animating');
-      showButtonsSequentially();
-    }, 4300);
+  setTimeout(() => {
+    const startTime = performance.now();
+
+    function frame(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / duration);
+      const x = fromX * (1 - easeInOutCubic(t));
+      setScrollX(x);
+
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        state.introPanning = false;
+        showButtonsSequentially();
+      }
+    }
+
+    requestAnimationFrame(frame);
   }, 400);
 }
 
@@ -209,7 +230,7 @@ function showButtonsSequentially() {
 
   sorted.forEach((btn, i) => {
     setTimeout(() => {
-      btn.classList.add('visible', 'animate-in');
+      btn.classList.add('visible');
       if (i === sorted.length - 1) {
         state.animating = false;
         state.introComplete = true;
@@ -395,6 +416,17 @@ function showCompletionState() {
 }
 
 /* ===========================
+   PRELOAD — images des modales en arrière-plan
+   =========================== */
+function preloadModalImages() {
+  const modals = state.config.modals || [];
+  modals.forEach(modal => {
+    if (modal.image) { const i = new Image(); i.src = modal.image; }
+    if (modal.label) { const i = new Image(); i.src = modal.label; }
+  });
+}
+
+/* ===========================
    DRAG — panoramique
    =========================== */
 function setupDrag() {
@@ -414,18 +446,31 @@ function getClientX(e) {
 }
 
 function onDragStart(e) {
-  if (!state.introComplete) return;
+  if (state.introPanning) return;
+  state.momentumActive = false;
   state.isDragging = true;
-  state.dragStartX = getClientX(e);
+  const clientX = getClientX(e);
+  state.dragStartX = clientX;
   state.dragScrollX = state.scrollX;
+  state.dragLastX = clientX;
+  state.dragLastTime = performance.now();
+  state.dragVelocity = 0;
   dom.panoramicWrapper.classList.add('is-dragging');
-  dom.panoramicTrack.style.transition = 'none';
 }
 
 function onDragMove(e) {
   if (!state.isDragging) return;
   if (e.cancelable) e.preventDefault();
-  const delta = state.dragStartX - getClientX(e);
+  const now = performance.now();
+  const clientX = getClientX(e);
+  const dt = now - state.dragLastTime;
+  if (dt > 0) {
+    // vélocité en px/ms, filtrée légèrement pour éviter les pics
+    state.dragVelocity = state.dragVelocity * 0.5 + ((state.dragLastX - clientX) / dt) * 0.5;
+  }
+  state.dragLastX = clientX;
+  state.dragLastTime = now;
+  const delta = state.dragStartX - clientX;
   setScrollX(state.dragScrollX + delta);
 }
 
@@ -433,6 +478,29 @@ function onDragEnd() {
   if (!state.isDragging) return;
   state.isDragging = false;
   dom.panoramicWrapper.classList.remove('is-dragging');
+
+  // Inertie : lance le momentum si vitesse suffisante
+  const v = state.dragVelocity * 16; // px par frame à 60fps
+  if (Math.abs(v) > 1) {
+    applyMomentum(v);
+  }
+}
+
+function applyMomentum(v) {
+  state.momentumActive = true;
+  const friction = 0.92;
+
+  function frame() {
+    if (!state.momentumActive) return;
+    v *= friction;
+    if (Math.abs(v) < 0.4 || state.scrollX <= 0 || state.scrollX >= state.maxScrollX) {
+      state.momentumActive = false;
+      return;
+    }
+    setScrollX(state.scrollX + v);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 }
 
 /* ===========================
@@ -449,21 +517,24 @@ function setupProgressBar() {
   }
 
   track.addEventListener('mousedown', e => {
+    state.momentumActive = false;
     state.progressDragging = true;
     seekFromEvent(e);
     e.stopPropagation();
+    e.preventDefault();
   });
   track.addEventListener('touchstart', e => {
+    state.momentumActive = false;
     state.progressDragging = true;
     seekFromEvent(e);
     e.stopPropagation();
   }, { passive: true });
 
   window.addEventListener('mousemove', e => {
-    if (state.progressDragging) seekFromEvent(e);
+    if (state.progressDragging) { state.isDragging = false; seekFromEvent(e); }
   });
   window.addEventListener('touchmove', e => {
-    if (state.progressDragging) seekFromEvent(e);
+    if (state.progressDragging) { state.isDragging = false; seekFromEvent(e); }
   }, { passive: true });
 
   window.addEventListener('mouseup', () => { state.progressDragging = false; });
