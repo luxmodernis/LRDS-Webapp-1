@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Position Editor — LRDS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Layout: phone frame + panel */
+    #layout {
+      display: flex;
+      height: 100dvh;
+      align-items: stretch;
+    }
+
+    /* Simulated phone frame */
+    #phone-frame {
+      flex: 0 0 auto;
+      width: 393px;
+      height: 100dvh;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.12);
+      position: relative;
+    }
+
+    /* Panoramic fills the phone */
+    #panoramic-section {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #panoramic-section.is-dragging-pan { cursor: grabbing; }
+
+    #panoramic-track {
+      position: relative;
+      height: 100%;
+    }
+
+    #panoramic-img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Plus buttons */
+    .plus-btn {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      z-index: 10;
+      border-radius: 50%;
+    }
+    .plus-btn.dragging { cursor: grabbing; opacity: 0.8; z-index: 20; }
+    .plus-btn img { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .plus-btn .btn-icon {
+      position: absolute;
+      top: 28.33%; left: 28.33%;
+      width: 43.34%; height: 43.34%;
+      object-fit: contain;
+    }
+    .plus-btn .btn-circle {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+    }
+
+    /* Label on each button */
+    .plus-btn .btn-label {
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      font-size: 10px;
+      white-space: nowrap;
+      padding: 2px 6px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* Side panel */
+    #panel {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      overflow-y: auto;
+      gap: 16px;
+    }
+
+    #panel h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+    }
+    #panel p.hint {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* Scroll controls */
+    #scroll-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #scroll-controls label { font-size: 12px; color: #555; }
+    #scroll-range { flex: 1; }
+    #scroll-pct { font-size: 12px; color: #333; min-width: 38px; text-align: right; }
+
+    /* Position list */
+    #positions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pos-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .pos-row:hover { border-color: #999; }
+    .pos-row.active { border-color: #000; background: #f9f9f9; }
+
+    .pos-id {
+      font-weight: 600;
+      min-width: 72px;
+      color: #111;
+    }
+    .pos-coords {
+      font-family: 'SF Mono', 'Fira Mono', monospace;
+      font-size: 12px;
+      color: #444;
+      flex: 1;
+    }
+    .pos-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+      flex-shrink: 0;
+    }
+    .pos-row.active .pos-dot { background: #000; }
+
+    /* Export area */
+    #export-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #export-area label { font-size: 12px; font-weight: 600; color: #333; }
+    #json-output {
+      width: 100%;
+      height: 180px;
+      font-family: 'SF Mono', 'Fira Mono', monospace;
+      font-size: 11px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      resize: vertical;
+      color: #222;
+      background: #fafafa;
+    }
+    #copy-btn {
+      align-self: flex-start;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    #copy-btn:active { opacity: 0.7; }
+    #copy-confirm {
+      font-size: 12px;
+      color: #27ae60;
+      min-height: 1.2em;
+    }
+
+    /* Progress strip at bottom of phone */
+    #progress-strip {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+      background: #fff;
+    }
+    #progress-track {
+      position: relative;
+      width: 290px;
+      height: 8px;
+    }
+    #progress-track::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      height: 1px;
+      background: #000;
+      transform: translateY(-50%);
+    }
+    #progress-dot {
+      position: absolute;
+      top: 0; left: 0;
+      width: 40px; height: 8px;
+      background: #000;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="layout">
+
+  <!-- Phone frame -->
+  <div id="phone-frame">
+    <div id="panoramic-section">
+      <div id="panoramic-track">
+        <img id="panoramic-img" src="" alt="Panoramique" draggable="false">
+      </div>
+    </div>
+    <div id="progress-strip">
+      <div id="progress-track">
+        <div id="progress-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side panel -->
+  <div id="panel">
+    <h1>Éditeur de positions</h1>
+    <p class="hint">Fais glisser les boutons <strong>+</strong> sur le diaporama pour ajuster leur position. Le JSON ci-dessous se met à jour en temps réel.</p>
+
+    <div id="scroll-controls">
+      <label>Scroll panoramique</label>
+      <input type="range" id="scroll-range" min="0" max="100" value="0">
+      <span id="scroll-pct">0%</span>
+    </div>
+
+    <div id="positions-list"></div>
+
+    <div id="export-area">
+      <label>JSON à copier dans config.json</label>
+      <textarea id="json-output" readonly></textarea>
+      <button id="copy-btn">Copier le JSON</button>
+      <span id="copy-confirm"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ASSETS = {
+  plusBlackCircle: '../../assets/plus-black-circle.svg',
+  plusBlackIcon:   '../../assets/plus-black-icon.svg',
+};
+
+let config = null;
+let positions = []; // [{id, x, y}]
+let scrollX = 0;
+let maxScrollX = 0;
+let isPanDragging = false;
+let panStartX = 0;
+let panScrollX = 0;
+
+const track = document.getElementById('panoramic-track');
+const img   = document.getElementById('panoramic-img');
+const section = document.getElementById('panoramic-section');
+const progressDot = document.getElementById('progress-dot');
+const progressTrack = document.getElementById('progress-track');
+const scrollRange = document.getElementById('scroll-range');
+const scrollPct = document.getElementById('scroll-pct');
+const positionsList = document.getElementById('positions-list');
+const jsonOutput = document.getElementById('json-output');
+const copyBtn = document.getElementById('copy-btn');
+const copyConfirm = document.getElementById('copy-confirm');
+
+async function init() {
+  config = await fetch('../../content/config.json').then(r => r.json());
+
+  // Préfixe ../../ pour résoudre les chemins relatifs depuis tools/position-editor/
+  const ROOT = '../../';
+
+  // Load panoramic
+  img.src = ROOT + (config.panoramic || 'content/slides/panoramic.webp');
+  await new Promise(resolve => {
+    if (img.complete && img.naturalWidth > 0) resolve();
+    else { img.onload = resolve; img.onerror = resolve; }
+  });
+
+  track.style.width = img.offsetWidth + 'px';
+  maxScrollX = Math.max(0, img.offsetWidth - section.offsetWidth);
+
+  // Init positions from config
+  positions = config.modals.map(m => ({
+    id: m.id,
+    x: m.position.x,
+    y: m.position.y,
+  }));
+
+  renderButtons();
+  renderList();
+  updateJSON();
+  setupPanDrag();
+  setupScrollRange();
+  window.addEventListener('resize', onResize);
+}
+
+/* ─── Buttons ─── */
+function renderButtons() {
+  document.querySelectorAll('.plus-btn').forEach(b => b.remove());
+
+  positions.forEach(pos => {
+    const btn = document.createElement('div');
+    btn.className = 'plus-btn';
+    btn.dataset.id = pos.id;
+    btn.style.left = pos.x + '%';
+    btn.style.top  = pos.y + '%';
+
+    const circle = document.createElement('img');
+    circle.className = 'btn-circle';
+    circle.src = ASSETS.plusBlackCircle;
+
+    const icon = document.createElement('img');
+    icon.className = 'btn-icon';
+    icon.src = ASSETS.plusBlackIcon;
+
+    const label = document.createElement('span');
+    label.className = 'btn-label';
+    label.textContent = pos.id;
+
+    btn.appendChild(circle);
+    btn.appendChild(icon);
+    btn.appendChild(label);
+
+    setupBtnDrag(btn, pos);
+    track.appendChild(btn);
+  });
+}
+
+function setupBtnDrag(btn, pos) {
+  let startClientX, startClientY, startX, startY;
+
+  function onStart(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    btn.classList.add('dragging');
+    const client = e.touches ? e.touches[0] : e;
+    startClientX = client.clientX;
+    startClientY = client.clientY;
+    startX = pos.x;
+    startY = pos.y;
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchend', onEnd);
+  }
+
+  function onMove(e) {
+    if (e.cancelable) e.preventDefault();
+    const client = e.touches ? e.touches[0] : e;
+    const trackRect = track.getBoundingClientRect();
+
+    const dx = client.clientX - startClientX;
+    const dy = client.clientY - startClientY;
+
+    const newX = Math.max(0, Math.min(100, startX + (dx / track.offsetWidth) * 100));
+    const newY = Math.max(0, Math.min(100, startY + (dy / track.offsetHeight) * 100));
+
+    pos.x = +newX.toFixed(2);
+    pos.y = +newY.toFixed(2);
+
+    btn.style.left = pos.x + '%';
+    btn.style.top  = pos.y + '%';
+
+    updateList();
+    updateJSON();
+  }
+
+  function onEnd() {
+    btn.classList.remove('dragging');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('touchmove', onMove);
+    window.removeEventListener('mouseup', onEnd);
+    window.removeEventListener('touchend', onEnd);
+  }
+
+  btn.addEventListener('mousedown', onStart);
+  btn.addEventListener('touchstart', onStart, { passive: false });
+}
+
+/* ─── Panoramic pan ─── */
+function setupPanDrag() {
+  section.addEventListener('mousedown', e => {
+    if (e.target.closest('.plus-btn')) return;
+    isPanDragging = true;
+    panStartX = e.clientX;
+    panScrollX = scrollX;
+    section.classList.add('is-dragging-pan');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isPanDragging) return;
+    setScrollX(panScrollX + (panStartX - e.clientX));
+  });
+  window.addEventListener('mouseup', () => {
+    isPanDragging = false;
+    section.classList.remove('is-dragging-pan');
+  });
+
+  section.addEventListener('touchstart', e => {
+    if (e.target.closest('.plus-btn')) return;
+    isPanDragging = true;
+    panStartX = e.touches[0].clientX;
+    panScrollX = scrollX;
+  }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (!isPanDragging) return;
+    setScrollX(panScrollX + (panStartX - e.touches[0].clientX));
+  }, { passive: true });
+  window.addEventListener('touchend', () => { isPanDragging = false; });
+}
+
+function setScrollX(x) {
+  scrollX = Math.max(0, Math.min(maxScrollX, x));
+  track.style.transform = `translateX(${-scrollX}px)`;
+  const ratio = maxScrollX > 0 ? scrollX / maxScrollX : 0;
+  const maxLeft = progressTrack.offsetWidth - progressDot.offsetWidth;
+  progressDot.style.left = (ratio * maxLeft) + 'px';
+  scrollRange.value = Math.round(ratio * 100);
+  scrollPct.textContent = Math.round(ratio * 100) + '%';
+}
+
+function setupScrollRange() {
+  scrollRange.addEventListener('input', () => {
+    const ratio = scrollRange.value / 100;
+    setScrollX(ratio * maxScrollX);
+  });
+}
+
+/* ─── List & JSON ─── */
+function renderList() {
+  positionsList.innerHTML = '';
+  positions.forEach(pos => {
+    const row = document.createElement('div');
+    row.className = 'pos-row';
+    row.dataset.id = pos.id;
+    row.innerHTML = `
+      <span class="pos-dot"></span>
+      <span class="pos-id">${pos.id}</span>
+      <span class="pos-coords">x: ${pos.x.toFixed(2)}%  y: ${pos.y.toFixed(2)}%</span>
+    `;
+    row.addEventListener('click', () => scrollToBtn(pos));
+    positionsList.appendChild(row);
+  });
+}
+
+function updateList() {
+  positions.forEach(pos => {
+    const row = positionsList.querySelector(`[data-id="${pos.id}"]`);
+    if (row) {
+      row.querySelector('.pos-coords').textContent =
+        `x: ${pos.x.toFixed(2)}%  y: ${pos.y.toFixed(2)}%`;
+    }
+  });
+}
+
+function updateJSON() {
+  const out = positions.map(p =>
+    `  { "id": "${p.id}", "position": { "x": ${p.x.toFixed(2)}, "y": ${p.y.toFixed(2)} } }`
+  ).join(',\n');
+  jsonOutput.value = `[\n${out}\n]`;
+}
+
+function scrollToBtn(pos) {
+  // Scroll so the button is visible
+  const targetScrollX = (pos.x / 100) * track.offsetWidth - section.offsetWidth / 2;
+  setScrollX(targetScrollX);
+}
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(jsonOutput.value).then(() => {
+    copyConfirm.textContent = 'Copié !';
+    setTimeout(() => { copyConfirm.textContent = ''; }, 2000);
+  });
+});
+
+function onResize() {
+  track.style.width = img.offsetWidth + 'px';
+  maxScrollX = Math.max(0, img.offsetWidth - section.offsetWidth);
+  setScrollX(scrollX);
+}
+
+init();
+</script>
+</body>
+</html>
