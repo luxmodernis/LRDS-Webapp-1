@@ -9,8 +9,8 @@
       "id": "modal-01",
       "order": 1,
       "position": {
-        "x": 16.48,
-        "y": 50.8
+        "x": 18.5,
+        "y": 49.75
       },
       "image": "content/modals/modal-01/image.jpg",
       "packshot": "content/modals/modal-01/packshot.png",
@@ -23,8 +23,8 @@
       "id": "modal-02",
       "order": 2,
       "position": {
-        "x": 5.97,
-        "y": 46.5
+        "x": 8.44,
+        "y": 45.98
       },
       "image": "content/modals/modal-02/image.jpg",
       "label": "content/modals/modal-02/label.png",
@@ -36,8 +36,8 @@
       "id": "modal-03",
       "order": 3,
       "position": {
-        "x": 4.65,
-        "y": 21.2
+        "x": 6.31,
+        "y": 17.66
       },
       "image": "content/modals/modal-03/image.jpg",
       "label": "content/modals/modal-03/label.png",
@@ -49,8 +49,8 @@
       "id": "modal-04",
       "order": 4,
       "position": {
-        "x": 15.99,
-        "y": 15.2
+        "x": 16.8,
+        "y": 15.07
       },
       "image": "content/modals/modal-04/image.jpg",
       "label": "content/modals/modal-04/label.png",
@@ -62,8 +62,8 @@
       "id": "modal-05",
       "order": 5,
       "position": {
-        "x": 34.94,
-        "y": 33.1
+        "x": 36.87,
+        "y": 30.61
       },
       "image": "content/modals/modal-05/image.jpg",
       "label": "content/modals/modal-05/label.png",
@@ -75,8 +75,8 @@
       "id": "modal-06",
       "order": 6,
       "position": {
-        "x": 36.14,
-        "y": 77.6
+        "x": 37.49,
+        "y": 78.78
       },
       "image": "content/modals/modal-06/image.jpg",
       "label": "content/modals/modal-06/label.png",
@@ -88,8 +88,8 @@
       "id": "modal-07",
       "order": 7,
       "position": {
-        "x": 54.98,
-        "y": 67.1
+        "x": 57.09,
+        "y": 64.87
       },
       "image": "content/modals/modal-07/image.jpg",
       "label": "content/modals/modal-07/label.png",
@@ -101,8 +101,8 @@
       "id": "modal-08",
       "order": 8,
       "position": {
-        "x": 84.06,
-        "y": 77.6
+        "x": 86.13,
+        "y": 76.81
       },
       "image": "content/modals/modal-08/image.jpg",
       "label": "content/modals/modal-08/label.png",
@@ -114,8 +114,8 @@
       "id": "modal-09",
       "order": 9,
       "position": {
-        "x": 89.81,
-        "y": 21.4
+        "x": 91.7,
+        "y": 21.66
       },
       "image": "content/modals/modal-09/image.jpg",
       "label": "content/modals/modal-09/label.png",
