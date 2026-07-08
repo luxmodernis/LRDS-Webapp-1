@@ -79,6 +79,7 @@ const state = {
 const $ = id => document.getElementById(id);
 const dom = {
   app:              $('app'),
+  textZone:         document.querySelector('.text-zone'),
   instructionText:  $('instructionText'),
   panoramicWrapper: $('panoramicWrapper'),
   panoramicTrack:   $('panoramicTrack'),
@@ -117,6 +118,11 @@ async function init() {
   });
 
   dom.panoramicTrack.style.width = dom.panoramicImg.offsetWidth + 'px';
+
+  // Verrouille la hauteur de la zone de texte pour que le diapo garde
+  // toujours la même taille, même quand le texte de fin (1 ligne) remplace
+  // l'instruction de départ (2 lignes).
+  dom.textZone.style.minHeight = dom.textZone.offsetHeight + 'px';
 
   computeScrollBounds();
   renderPlusButtons();
