@@ -11,21 +11,28 @@
 
   ── TRANSLATION INSTRUCTIONS ────────────────────────────────
 
-  ✅ TRANSLATE: all visible text — words, sentences, labels.
-     This includes text inside <strong> (bold) and around <br>
-     (forced line break inside a title).
+  ✅ TRANSLATE the text content inside these tags only:
+       <h1 data-key="title">   → product or section title
+       <div data-key="...">    → UI label or body text
+       <p>                     → paragraph inside a modal
+     This includes text inside <strong> (bold) and text
+     around <br> (forced line break inside a title).
 
   ❌ DO NOT TRANSLATE OR MODIFY anything between <!-- and -->
-     These are HTML comments: structural notes and section
-     labels for the developer. They are invisible to the user
-     and must be left exactly as they are.
+     IMPORTANT: this includes every section header such as
+     "MODAL 01 — Huile Légère Embellissante" — these are
+     internal notes for developers and must be left exactly
+     as they are.
 
-  ❌ DO NOT MODIFY: HTML tags, attributes, or their order.
-     Examples of things to leave untouched:
-       <section data-modal="modal-01">   ← do not change
-       <h1 data-key="title">            ← do not change
-       <p class="label-section">        ← do not change
-       &amp;                            ← keep as &amp;, never &
+  ❌ DO NOT MODIFY HTML tags, attributes, or their order.
+     Leave these untouched:
+       <section data-modal="modal-01">   ← identifier, do not change
+       <h1 data-key="title">            ← attribute, do not change
+       <p class="label-section">        ← class, do not change
+
+  ❌ DO NOT change &amp; to &
+     The character & must always be written as &amp; in HTML.
+     Example: huile de sésame &amp; un parfum  ← keep as-is
 
   ❌ DO NOT remove tags or change their nesting.
 
