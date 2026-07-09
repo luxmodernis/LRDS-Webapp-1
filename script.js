@@ -1,46 +1,4 @@
 /* ===========================
-   PASSWORD GATE
-   =========================== */
-const PW_CORRECT = 'LRDS';
-const PW_SESSION_KEY = 'lrds_unlocked';
-
-function initPasswordGate(onUnlock) {
-  const gate = document.getElementById('passwordGate');
-  const input = document.getElementById('pwInput');
-  const submitBtn = document.getElementById('pwSubmit');
-  const errorEl = document.getElementById('pwError');
-
-  if (sessionStorage.getItem(PW_SESSION_KEY) === '1') {
-    gate.classList.add('unlocked');
-    gate.addEventListener('transitionend', () => { gate.hidden = true; }, { once: true });
-    onUnlock();
-    return;
-  }
-
-  function tryUnlock() {
-    const val = input.value.trim().toUpperCase();
-    if (val === PW_CORRECT) {
-      sessionStorage.setItem(PW_SESSION_KEY, '1');
-      errorEl.textContent = '';
-      gate.classList.add('unlocked');
-      gate.addEventListener('transitionend', () => { gate.hidden = true; }, { once: true });
-      onUnlock();
-    } else {
-      errorEl.textContent = 'Mot de passe incorrect.';
-      input.value = '';
-      input.focus();
-      input.classList.remove('shake');
-      void input.offsetWidth;
-      input.classList.add('shake');
-    }
-  }
-
-  submitBtn.addEventListener('click', tryUnlock);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
-  input.focus();
-}
-
-/* ===========================
    ASSETS
    =========================== */
 const ASSETS = {
@@ -75,7 +33,6 @@ const state = {
   dragLastTime: 0,
   momentumActive: false,
   readyForIntro: false,
-  passwordUnlocked: false,
 };
 
 /* ===========================
@@ -142,7 +99,7 @@ async function init() {
 
   preloadModalImages();
   state.readyForIntro = true;
-  maybeStartIntro();
+  playIntroAnimation();
 }
 
 // Applique les textes généraux (hors modales) chargés depuis texts.html
@@ -154,13 +111,6 @@ function applyAppTexts() {
   dom.btnRetour.textContent = t.labelBack;
 }
 
-// L'animation d'intro attend deux conditions : le chargement (init) terminé
-// ET le mot de passe validé — sinon elle se joue derrière l'écran de mdp.
-function maybeStartIntro() {
-  if (state.readyForIntro && state.passwordUnlocked) {
-    playIntroAnimation();
-  }
-}
 
 async function loadConfig() {
   try {
@@ -576,10 +526,6 @@ function onResize() {
    =========================== */
 document.addEventListener('DOMContentLoaded', () => {
   if (window.ScormBridge) ScormBridge.initialize();
-  initPasswordGate(() => {
-    state.passwordUnlocked = true;
-    maybeStartIntro();
-  });
   init();
 });
 
