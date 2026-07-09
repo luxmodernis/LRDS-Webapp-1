@@ -54,23 +54,30 @@
       initialize: function () {
         try { api.data.init(); return true; } catch (e) { return false; }
       },
+      // terminate() envoie la session ET ferme — c'est le seul moment où
+      // data.send() est appelé. La doc ToM précise que chaque send() crée
+      // un nouveau "launch" dans le Mission Center : on ne doit donc pas
+      // appeler send() à chaque mise à jour de progression.
       terminate: function () {
-        try { api.utils.close(); return true; } catch (e) { return false; }
+        try { api.data.send(); api.utils.close(); return true; } catch (e) { return false; }
       },
-      commit: function () {
-        try { api.data.send(); return true; } catch (e) { return false; }
-      },
+      // commit() est un no-op pour ToM : data.set() suffit à maintenir
+      // les valeurs en mémoire jusqu'au terminate().
+      commit: function () { return true; },
       setProgress: function (ratio) {
         try {
+          // ToM attend un entier 0..100, pas un ratio 0..1
+          var percent = Math.round(ratio * 100);
           var current = api.data.get('progress') || 0;
-          if (current < ratio) api.data.set('progress', ratio);
+          if (percent > current) api.data.set('progress', percent);
           return true;
         } catch (e) { return false; }
       },
-      setCompleted: function (success) {
+      setCompleted: function () {
         try {
-          api.data.set('success', !!success);
-          api.data.set('progress', 1);
+          api.data.set('progress', 100);
+          api.data.set('success', true);
+          api.data.set('score', 100);
           return true;
         } catch (e) { return false; }
       },
