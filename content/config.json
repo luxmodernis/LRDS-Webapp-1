@@ -1,9 +1,5 @@
 {
   "panoramic": "content/slides/panoramic.webp",
-  "instructionDefault": "Explorer la panoramique et cliquez sur tous les PLUS pour découvrir les soins.",
-  "instructionComplete": "Vous avez visité tous les soins.",
-  "labelQuit": "QUITTER",
-  "labelBack": "RETOUR",
   "modals": [
     {
       "id": "modal-01",
@@ -14,9 +10,7 @@
       },
       "image": "content/modals/modal-01/image.jpg",
       "packshot": "content/modals/modal-01/packshot.png",
-      "label": "content/modals/modal-01/label.png",
-      "titleFile": "content/modals/modal-01/title.txt",
-      "textFile": "content/modals/modal-01/text.html"
+      "label": "content/modals/modal-01/label.png"
     },
     {
       "id": "modal-02",
@@ -27,9 +21,7 @@
       },
       "image": "content/modals/modal-02/image.jpg",
       "packshot": "content/modals/modal-02/packshot.png",
-      "label": "content/modals/modal-02/label.png",
-      "titleFile": "content/modals/modal-02/title.txt",
-      "textFile": "content/modals/modal-02/text.html"
+      "label": "content/modals/modal-02/label.png"
     },
     {
       "id": "modal-03",
@@ -40,9 +32,7 @@
       },
       "image": "content/modals/modal-03/image.jpg",
       "packshot": "content/modals/modal-03/packshot.png",
-      "label": "content/modals/modal-03/label.png",
-      "titleFile": "content/modals/modal-03/title.txt",
-      "textFile": "content/modals/modal-03/text.html"
+      "label": "content/modals/modal-03/label.png"
     },
     {
       "id": "modal-04",
@@ -53,9 +43,7 @@
       },
       "image": "content/modals/modal-04/image.jpg",
       "packshot": "content/modals/modal-04/packshot.png",
-      "label": "content/modals/modal-04/label.png",
-      "titleFile": "content/modals/modal-04/title.txt",
-      "textFile": "content/modals/modal-04/text.html"
+      "label": "content/modals/modal-04/label.png"
     },
     {
       "id": "modal-05",
@@ -66,9 +54,7 @@
       },
       "image": "content/modals/modal-05/image.jpg",
       "packshot": "content/modals/modal-05/packshot.png",
-      "label": "content/modals/modal-05/label.png",
-      "titleFile": "content/modals/modal-05/title.txt",
-      "textFile": "content/modals/modal-05/text.html"
+      "label": "content/modals/modal-05/label.png"
     },
     {
       "id": "modal-06",
@@ -79,9 +65,7 @@
       },
       "image": "content/modals/modal-06/image.jpg",
       "packshot": "content/modals/modal-06/packshot.png",
-      "label": "content/modals/modal-06/label.png",
-      "titleFile": "content/modals/modal-06/title.txt",
-      "textFile": "content/modals/modal-06/text.html"
+      "label": "content/modals/modal-06/label.png"
     },
     {
       "id": "modal-07",
@@ -92,9 +76,7 @@
       },
       "image": "content/modals/modal-07/image.jpg",
       "packshot": "content/modals/modal-07/packshot.png",
-      "label": "content/modals/modal-07/label.png",
-      "titleFile": "content/modals/modal-07/title.txt",
-      "textFile": "content/modals/modal-07/text.html"
+      "label": "content/modals/modal-07/label.png"
     },
     {
       "id": "modal-08",
@@ -105,9 +87,7 @@
       },
       "image": "content/modals/modal-08/image.jpg",
       "packshot": "content/modals/modal-08/packshot.png",
-      "label": "content/modals/modal-08/label.png",
-      "titleFile": "content/modals/modal-08/title.txt",
-      "textFile": "content/modals/modal-08/text.html"
+      "label": "content/modals/modal-08/label.png"
     },
     {
       "id": "modal-09",
@@ -118,10 +98,7 @@
       },
       "image": "content/modals/modal-09/image.jpg",
       "packshot": "content/modals/modal-09/packshot.png",
-      "label": "content/modals/modal-09/label.png",
-      "titleFile": "content/modals/modal-09/title.txt",
-      "textFile": "content/modals/modal-09/text.html"
+      "label": "content/modals/modal-09/label.png"
     }
-  ],
-  "consigneDefault": "Entraînez-vous à présenter ce soin en utilisant l'étiquette"
+  ]
 }

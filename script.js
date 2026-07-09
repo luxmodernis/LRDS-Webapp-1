@@ -56,6 +56,7 @@ const ASSETS = {
    =========================== */
 const state = {
   config: null,
+  texts: null,
   visited: new Set(),
   currentModalId: null,
   modalPage: 1,         // 1 ou 2
@@ -109,6 +110,8 @@ const dom = {
    =========================== */
 async function init() {
   state.config = await loadConfig();
+  state.texts = await loadTexts();
+  applyAppTexts();
 
   const panoramicSrc = state.config.panoramic || ASSETS.panoramic;
   await new Promise(resolve => {
@@ -142,6 +145,15 @@ async function init() {
   maybeStartIntro();
 }
 
+// Applique les textes généraux (hors modales) chargés depuis texts.html
+function applyAppTexts() {
+  const t = state.texts.app;
+  dom.instructionText.textContent = t.instructionDefault;
+  dom.btnQuit.textContent = t.labelQuit;
+  dom.btnSuite.textContent = t.labelSuite;
+  dom.btnRetour.textContent = t.labelBack;
+}
+
 // L'animation d'intro attend deux conditions : le chargement (init) terminé
 // ET le mot de passe validé — sinon elle se joue derrière l'écran de mdp.
 function maybeStartIntro() {
@@ -156,41 +168,62 @@ async function loadConfig() {
     return await res.json();
   } catch (e) {
     console.warn('config.json not found, using defaults');
-    return {
-      panoramic: null,
-      instructionDefault: 'Explorer la panoramique et cliquez sur tous les PLUS pour découvrir les soins.',
-      instructionComplete: 'Vous avez visité tous les soins.',
-      labelQuit: 'QUITTER',
-      modals: [],
-    };
+    return { panoramic: null, modals: [] };
+  }
+}
+
+const TEXTS_FALLBACK = {
+  app: {
+    instructionDefault: 'Explorer la panoramique et cliquez sur tous les PLUS pour découvrir les soins.',
+    instructionComplete: 'Vous avez visité tous les soins.',
+    labelQuit: 'QUITTER',
+    labelSuite: 'SUITE',
+    labelBack: 'RETOUR',
+    consigneDefault: "Entraînez-vous à présenter ce soin en utilisant l'étiquette",
+  },
+  modals: {},
+};
+
+// Charge et parse le fichier unique de textes (content/texts.html).
+// C'est ce fichier qui est remplacé d'une langue à l'autre pour les
+// packages Teach on Mars — voir les commentaires en tête du fichier.
+async function loadTexts() {
+  try {
+    const res = await fetch('content/texts.html');
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    const app = { ...TEXTS_FALLBACK.app };
+    doc.querySelectorAll('[data-app-texts] [data-key]').forEach(el => {
+      app[el.dataset.key] = el.innerHTML.trim();
+    });
+
+    const modals = {};
+    doc.querySelectorAll('[data-modal]').forEach(section => {
+      const id = section.dataset.modal;
+      modals[id] = {
+        title: section.querySelector('[data-key="title"]')?.innerHTML.trim() || '',
+        text:  section.querySelector('[data-key="text"]')?.innerHTML.trim() || '',
+      };
+    });
+
+    return { app, modals };
+  } catch (e) {
+    console.warn('texts.html not found, using defaults');
+    return TEXTS_FALLBACK;
   }
 }
 
 /* ===========================
-   PRELOAD — images + textes des modales
+   PRELOAD — images des modales
    =========================== */
-const modalCache = {};
-
 function preloadModalImages() {
   const modals = state.config.modals || [];
   modals.forEach(modal => {
     if (modal.image)   { const i = new Image(); i.src = modal.image; }
     if (modal.label)   { const i = new Image(); i.src = modal.label; }
     if (modal.packshot){ const i = new Image(); i.src = modal.packshot; }
-    preloadModalText(modal);
   });
-}
-
-async function preloadModalText(modal) {
-  const cache = modalCache[modal.id] = { title: '', text: '' };
-  try {
-    const [tR, xR] = await Promise.all([
-      modal.titleFile ? fetch(modal.titleFile).catch(() => null) : null,
-      modal.textFile  ? fetch(modal.textFile).catch(() => null)  : null,
-    ]);
-    if (tR && tR.ok) cache.title = (await tR.text()).trim().replace(/\n/g, '<br>');
-    if (xR && xR.ok) cache.text  = await xR.text();
-  } catch (e) { /* silencieux */ }
 }
 
 /* ===========================
@@ -333,11 +366,11 @@ function openModal(id) {
   // Reset to page 1
   dom.modalPagesTrack.classList.remove('show-page2');
 
-  // Injecte le contenu depuis le cache
-  const cache = modalCache[id] || {};
-  dom.modalTitle.innerHTML   = cache.title   || '';
-  dom.modalText.innerHTML    = cache.text    || '';
-  dom.modalConsigne.textContent = state.config.consigneDefault || 'Entraînez-vous à présenter ce soin en utilisant l\'étiquette';
+  // Injecte le contenu depuis texts.html
+  const texts = state.texts.modals[id] || {};
+  dom.modalTitle.innerHTML   = texts.title || '';
+  dom.modalText.innerHTML    = texts.text  || '';
+  dom.modalConsigne.textContent = state.texts.app.consigneDefault;
 
   // Images (préchargées — pas de cache-busting)
   dom.modalImg.src         = modal.image    || '';
@@ -390,13 +423,12 @@ function checkCompletion() {
 function showCompletionState() {
   dom.instructionText.style.opacity = '0';
   setTimeout(() => {
-    dom.instructionText.textContent = state.config.instructionComplete || 'Vous avez visité tous les soins.';
+    dom.instructionText.textContent = state.texts.app.instructionComplete;
     dom.instructionText.classList.add('centered');
     dom.instructionText.style.opacity = '1';
   }, 400);
 
   dom.btnQuitWrap.classList.add('visible');
-  if (state.config.labelQuit) dom.btnQuit.textContent = state.config.labelQuit;
 }
 
 /* ===========================
