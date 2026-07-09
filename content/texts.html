@@ -1,53 +1,72 @@
 <!--
   ═══════════════════════════════════════════════════════════════
-  TEXTES — Les Rituels de Soin (Diptyque)
+  TEXTS — Les Rituels de Soin (Diptyque)
   ═══════════════════════════════════════════════════════════════
 
-  C'est le SEUL fichier à traduire pour produire un package dans
-  une autre langue. Chaque langue = une copie de ce fichier avec
-  le même nom (content/texts.html) et la même structure, déposée
-  dans son propre package avec les assets (images du panoramique
-  et des modales).
+  This is the ONLY file to translate to produce a package in
+  another language. One language = one copy of this file with
+  the same name (content/texts.html) and the same structure,
+  placed in its own package alongside the assets (panoramic
+  and modal images).
 
-  Consignes pour la traduction :
-  - Ne touchez pas aux attributs (data-key, data-modal, class).
-  - Vous pouvez traduire tout le texte visible, y compris à
-    l'intérieur des balises <strong> (gras) et <br> (saut de ligne
-    forcé dans un titre).
-  - Gardez la même ponctuation HTML (&amp; reste &amp;, jamais &).
-  - Ne supprimez pas de balises, ne changez pas leur ordre.
+  ── TRANSLATION INSTRUCTIONS ────────────────────────────────
+
+  ✅ TRANSLATE: all visible text — words, sentences, labels.
+     This includes text inside <strong> (bold) and around <br>
+     (forced line break inside a title).
+
+  ❌ DO NOT TRANSLATE OR MODIFY anything between <!-- and -->
+     These are HTML comments: structural notes and section
+     labels for the developer. They are invisible to the user
+     and must be left exactly as they are.
+
+  ❌ DO NOT MODIFY: HTML tags, attributes, or their order.
+     Examples of things to leave untouched:
+       <section data-modal="modal-01">   ← do not change
+       <h1 data-key="title">            ← do not change
+       <p class="label-section">        ← do not change
+       &amp;                            ← keep as &amp;, never &
+
+  ❌ DO NOT remove tags or change their nesting.
+
   ═══════════════════════════════════════════════════════════════
 -->
 
 <!-- ───────────────────────────────────────────────
-     TEXTES GÉNÉRAUX DE L'APPLICATION
+     DO NOT TRANSLATE — General app UI labels
      ─────────────────────────────────────────────── -->
 <section data-app-texts>
 
-  <!-- Instruction affichée en haut de l'écran principal, avant
-       que tous les soins aient été visités -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Instruction shown at the top of the main screen, before all products have been visited -->
   <div data-key="instructionDefault">Explorer la panoramique et cliquez sur tous les PLUS pour découvrir les soins.</div>
 
-  <!-- Instruction affichée une fois que tous les soins ont été visités -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Instruction shown once all products have been visited -->
   <div data-key="instructionComplete">Vous avez visité tous les soins.</div>
 
-  <!-- Bouton de sortie, affiché une fois tous les soins visités -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Exit button, shown once all products have been visited -->
   <div data-key="labelQuit">QUITTER</div>
 
-  <!-- Bouton en bas de la page 1 de la modale (photo + texte) -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Button at the bottom of modal page 1 (photo + text) -->
   <div data-key="labelSuite">SUITE</div>
 
-  <!-- Bouton en bas de la page 2 de la modale (étiquette), ferme la modale -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Button at the bottom of modal page 2 (label), closes the modal -->
   <div data-key="labelBack">RETOUR</div>
 
-  <!-- Consigne affichée sous l'étiquette, page 2 de chaque modale -->
+  <!-- DO NOT TRANSLATE — key name. Translate the text content only. -->
+  <!-- Instruction shown below the label on modal page 2 -->
   <div data-key="consigneDefault">Entraînez-vous à présenter ce soin en utilisant l'étiquette</div>
 
 </section>
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 01 — Huile Légère Embellissante
+     DO NOT TRANSLATE — Modal 01 identifier
+     MODAL 01 — Huile Légère Embellissante
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-01">
   <h1 data-key="title">Huile Légère<br>Embellissante</h1>
@@ -63,7 +82,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 02 — Baume Riche Apaisant
+     DO NOT TRANSLATE — Modal 02 identifier
+     MODAL 02 — Baume Riche Apaisant
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-02">
   <h1 data-key="title">Baume Riche<br>Apaisant</h1>
@@ -79,7 +99,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 03 — Pommade Gommante Vivifiante
+     DO NOT TRANSLATE — Modal 03 identifier
+     MODAL 03 — Pommade Gommante Vivifiante
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-03">
   <h1 data-key="title">Pommade Gommante<br>Vivifiante</h1>
@@ -95,7 +116,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 04 — Bougie Le Matin
+     DO NOT TRANSLATE — Modal 04 identifier
+     MODAL 04 — Bougie Le Matin
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-04">
   <h1 data-key="title">Bougie<br>Le Matin</h1>
@@ -109,7 +131,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 05 — Lait Hydratant Réconfortant
+     DO NOT TRANSLATE — Modal 05 identifier
+     MODAL 05 — Lait Hydratant Réconfortant
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-05">
   <h1 data-key="title">Lait<br>Hydratant Réconfortant</h1>
@@ -125,7 +148,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 06 — Gelée Lavante Bienfaisante
+     DO NOT TRANSLATE — Modal 06 identifier
+     MODAL 06 — Gelée Lavante Bienfaisante
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-06">
   <h1 data-key="title">Gelée<br>Lavante Bienfaisante</h1>
@@ -141,7 +165,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 07 — Cire À Lèvres
+     DO NOT TRANSLATE — Modal 07 identifier
+     MODAL 07 — Cire À Lèvres
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-07">
   <h1 data-key="title">Cire<br>À Lèvres</h1>
@@ -157,7 +182,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 08 — Bougie Le Soir
+     DO NOT TRANSLATE — Modal 08 identifier
+     MODAL 08 — Bougie Le Soir
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-08">
   <h1 data-key="title">Bougie<br>Le Soir</h1>
@@ -171,7 +197,8 @@
 
 
 <!-- ───────────────────────────────────────────────
-     MODALE 09 — Huile-en-huile Relaxante
+     DO NOT TRANSLATE — Modal 09 identifier
+     MODAL 09 — Huile-en-huile Relaxante
      ─────────────────────────────────────────────── -->
 <section data-modal="modal-09">
   <h1 data-key="title">Huile-en-huile<br>Relaxante</h1>
