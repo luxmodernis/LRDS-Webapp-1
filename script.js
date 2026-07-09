@@ -4,7 +4,7 @@
 const PW_CORRECT = 'LRDS';
 const PW_SESSION_KEY = 'lrds_unlocked';
 
-function initPasswordGate() {
+function initPasswordGate(onUnlock) {
   const gate = document.getElementById('passwordGate');
   const input = document.getElementById('pwInput');
   const submitBtn = document.getElementById('pwSubmit');
@@ -13,6 +13,7 @@ function initPasswordGate() {
   if (sessionStorage.getItem(PW_SESSION_KEY) === '1') {
     gate.classList.add('unlocked');
     gate.addEventListener('transitionend', () => { gate.hidden = true; }, { once: true });
+    onUnlock();
     return;
   }
 
@@ -23,6 +24,7 @@ function initPasswordGate() {
       errorEl.textContent = '';
       gate.classList.add('unlocked');
       gate.addEventListener('transitionend', () => { gate.hidden = true; }, { once: true });
+      onUnlock();
     } else {
       errorEl.textContent = 'Mot de passe incorrect.';
       input.value = '';
@@ -71,6 +73,8 @@ const state = {
   dragLastX: 0,
   dragLastTime: 0,
   momentumActive: false,
+  readyForIntro: false,
+  passwordUnlocked: false,
 };
 
 /* ===========================
@@ -134,7 +138,16 @@ async function init() {
   window.addEventListener('resize', onResize);
 
   preloadModalImages();
-  playIntroAnimation();
+  state.readyForIntro = true;
+  maybeStartIntro();
+}
+
+// L'animation d'intro attend deux conditions : le chargement (init) terminé
+// ET le mot de passe validé — sinon elle se joue derrière l'écran de mdp.
+function maybeStartIntro() {
+  if (state.readyForIntro && state.passwordUnlocked) {
+    playIntroAnimation();
+  }
 }
 
 async function loadConfig() {
@@ -219,7 +232,7 @@ function playIntroAnimation() {
   state.introPanning = true;
   state.animating = true;
 
-  const duration = 4000;
+  const duration = 5500;
 
   setTimeout(() => {
     const startTime = performance.now();
@@ -523,6 +536,9 @@ function onResize() {
    START
    =========================== */
 document.addEventListener('DOMContentLoaded', () => {
-  initPasswordGate();
+  initPasswordGate(() => {
+    state.passwordUnlocked = true;
+    maybeStartIntro();
+  });
   init();
 });
