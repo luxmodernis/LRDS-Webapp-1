@@ -350,36 +350,25 @@ img {
 /* ===========================
    PAGE 2
    =========================== */
-.modal-consigne {
-  flex: 0 0 auto;
-  padding: clamp(8px, 1.2vh, 14px) 40px;
-  font-size: clamp(15px, 4.5vw, 18px);
-  line-height: 1.4;
-  text-align: center;
-  color: #000;
+
+/* modalPage2 : 3 enfants séparés par espace B égal */
+#modalPage2 {
+  justify-content: space-between;
+  padding-top: clamp(6px, 1.2vh, 14px); /* marge A = même que margin-top image page 1 */
 }
-.modal-images-area {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow: hidden;
-  padding-top: clamp(12px, 2vh, 24px);
-  gap: clamp(10px, 2vh, 22px);
-}
+
+/* Bloc 1 : packshot seul, centré */
 .modal-packshot {
   flex: 0 0 auto;
-  width: 40%;
-  max-height: 24vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-height: 24vh;
   outline: 2px solid red;
 }
 .modal-packshot-img {
-  max-width: 100%;
+  max-width: 40%;
   max-height: 100%;
   width: auto;
   height: auto;
@@ -387,6 +376,22 @@ img {
 }
 .modal-packshot-img[src=""] {
   display: none;
+}
+
+/* Bloc 2 : consigne + marge A + étiquette */
+.modal-consigne-block {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.2vh, 14px); /* marge A */
+}
+.modal-consigne {
+  font-size: clamp(15px, 4.5vw, 18px);
+  line-height: 1.4;
+  text-align: center;
+  color: #000;
+  padding: 0 40px;
 }
 .modal-label-wrap {
   flex: 0 0 auto;
