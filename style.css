@@ -272,7 +272,7 @@ img {
 /* Titre fixe — ne slide pas */
 .modal-title-wrap {
   flex: 0 0 auto;
-  padding: clamp(10px, 1.5vh, 28px) 40px clamp(8px, 1.2vh, 14px);
+  padding: clamp(10px, 1.5vh, 28px) 40px;
   text-align: center;
 }
 .modal-title {
@@ -365,6 +365,8 @@ img {
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  padding: clamp(12px, 3vh, 32px) 0;
+  gap: clamp(8px, 1.5vh, 16px);
 }
 .modal-packshot {
   flex: 2 1 0;
@@ -373,7 +375,6 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: clamp(6px, 1vh, 12px);
 }
 .modal-packshot-img {
   max-width: 100%;
