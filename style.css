@@ -340,8 +340,8 @@ img {
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-top: clamp(8px, 1.5vh, 14px);
-  margin-bottom: 4px;
+  margin-top: clamp(12px, 2vh, 18px);
+  margin-bottom: 0;
 }
 .modal-text .label-section:first-child {
   margin-top: 0;
