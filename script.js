@@ -187,6 +187,8 @@ function computeScrollBounds() {
   state.maxScrollX = Math.max(0, trackW - wrapperW);
   // Mis en cache pour éviter un reflow synchrone à chaque frame d'animation
   progressMaxLeft = dom.progressTrack.offsetWidth - dom.progressDot.offsetWidth;
+  // Taille des boutons proportionnelle à la hauteur réelle du diapo
+  document.documentElement.style.setProperty('--diapo-h', dom.panoramicWrapper.offsetHeight + 'px');
 }
 
 function setScrollX(x) {
