@@ -364,16 +364,19 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   overflow: hidden;
+  padding-top: clamp(12px, 2vh, 24px);
+  gap: clamp(10px, 2vh, 22px);
 }
 .modal-packshot {
   flex: 0 0 auto;
-  width: 44%;
-  max-height: 27vh;
+  width: 40%;
+  max-height: 24vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: 2px solid red;
 }
 .modal-packshot-img {
   max-width: 100%;
@@ -392,6 +395,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: 2px solid red;
 }
 .modal-label-img {
   max-width: 100%;
