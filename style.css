@@ -272,7 +272,7 @@ img {
 /* Titre fixe — ne slide pas */
 .modal-title-wrap {
   flex: 0 0 auto;
-  padding: clamp(10px, 1.5vh, 28px) 40px 0;
+  padding: clamp(10px, 1.5vh, 28px) 40px clamp(8px, 1.2vh, 14px);
   text-align: center;
 }
 .modal-title {
