@@ -365,7 +365,6 @@ img {
   justify-content: center;
   width: 100%;
   max-height: 24vh;
-  outline: 2px solid red;
 }
 .modal-packshot-img {
   max-width: 40%;
@@ -400,7 +399,6 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  outline: 2px solid red;
 }
 .modal-label-img {
   max-width: 100%;

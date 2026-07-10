@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="LRDS-Webapp-1" version="1.0"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
+    http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+
+  <organizations default="LRDS_ORG">
+    <organization identifier="LRDS_ORG">
+      <title>Les Rituels de Soin — Diptyque</title>
+      <item identifier="ITEM_01" identifierref="RESOURCE_01">
+        <title>Les Rituels de Soin</title>
+      </item>
+    </organization>
+  </organizations>
+
+  <resources>
+    <resource identifier="RESOURCE_01" type="webcontent"
+      adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="style.css"/>
+      <file href="script.js"/>
+      <file href="scorm.js"/>
+      <file href="assets/fonts/DiptyqueSaintGermain-Regular.woff2"/>
+      <file href="assets/fonts/DiptyqueSaintGermain-Regular.woff"/>
+      <file href="assets/fonts/DiptyqueSaintGermain-Bold.woff2"/>
+      <file href="assets/fonts/DiptyqueSaintGermain-Bold.woff"/>
+      <file href="assets/logo.png"/>
+      <file href="assets/logo.svg"/>
+      <file href="assets/close-circle.svg"/>
+      <file href="assets/close-icon.svg"/>
+      <file href="assets/cross-icon.svg"/>
+      <file href="assets/plus-black-circle.svg"/>
+      <file href="assets/plus-black-icon.svg"/>
+      <file href="assets/plus-white-circle.svg"/>
+      <file href="assets/plus-white-icon.svg"/>
+      <file href="content/config.json"/>
+      <file href="content/texts.html"/>
+      <file href="content/slides/panoramic.webp"/>
+      <file href="content/modals/modal-01/image.webp"/>
+      <file href="content/modals/modal-01/packshot.webp"/>
+      <file href="content/modals/modal-01/label.png"/>
+      <file href="content/modals/modal-02/image.webp"/>
+      <file href="content/modals/modal-02/packshot.webp"/>
+      <file href="content/modals/modal-02/label.png"/>
+      <file href="content/modals/modal-03/image.webp"/>
+      <file href="content/modals/modal-03/packshot.webp"/>
+      <file href="content/modals/modal-03/label.png"/>
+      <file href="content/modals/modal-04/image.webp"/>
+      <file href="content/modals/modal-04/packshot.webp"/>
+      <file href="content/modals/modal-04/label.png"/>
+      <file href="content/modals/modal-05/image.webp"/>
+      <file href="content/modals/modal-05/packshot.webp"/>
+      <file href="content/modals/modal-05/label.png"/>
+      <file href="content/modals/modal-06/image.webp"/>
+      <file href="content/modals/modal-06/packshot.webp"/>
+      <file href="content/modals/modal-06/label.png"/>
+      <file href="content/modals/modal-07/image.webp"/>
+      <file href="content/modals/modal-07/packshot.webp"/>
+      <file href="content/modals/modal-07/label.png"/>
+      <file href="content/modals/modal-08/image.webp"/>
+      <file href="content/modals/modal-08/packshot.webp"/>
+      <file href="content/modals/modal-08/label.png"/>
+      <file href="content/modals/modal-09/image.webp"/>
+      <file href="content/modals/modal-09/packshot.webp"/>
+      <file href="content/modals/modal-09/label.png"/>
+    </resource>
+  </resources>
+
+</manifest>
