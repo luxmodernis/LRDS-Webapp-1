@@ -309,7 +309,7 @@ img {
    =========================== */
 .modal-img-wrap {
   flex: 0 0 auto;
-  width: 84%;
+  width: calc(100% - 64px);
   margin: clamp(6px, 1.2vh, 14px) auto 0;
   max-height: clamp(100px, 26vh, 200px);
   display: flex;
@@ -356,14 +356,30 @@ img {
 /* ===========================
    PAGE 2
    =========================== */
+.modal-consigne {
+  flex: 0 0 auto;
+  padding: clamp(10px, 1.5vh, 16px) 40px 0;
+  font-size: clamp(15px, 4.5vw, 18px);
+  line-height: 1.4;
+  text-align: center;
+  color: #000;
+}
+.modal-images-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
 .modal-packshot {
   flex: 2 1 0;
   min-height: 0;
   width: 44%;
-  margin: 12px auto 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: clamp(6px, 1vh, 12px);
 }
 .modal-packshot-img {
   max-width: 100%;
@@ -375,31 +391,21 @@ img {
 .modal-packshot-img[src=""] {
   display: none;
 }
-.modal-page2-content {
+.modal-label-wrap {
   flex: 3 1 0;
   min-height: 0;
+  width: clamp(200px, 62vw, 260px);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 16px 40px 0;
-  overflow: hidden;
-}
-.modal-consigne {
-  flex: 0 0 auto;
-  font-size: clamp(15px, 4.5vw, 18px);
-  line-height: 1.4;
-  text-align: center;
-  color: #000;
 }
 .modal-label-img {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-width: clamp(200px, 62vw, 260px);
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block;
   object-fit: contain;
-  align-self: center;
 }
 
 /* ===========================
