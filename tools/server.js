@@ -44,9 +44,10 @@ const server = http.createServer((req, res) => {
         const newPositions = JSON.parse(body); // [{id, x, y}, ...]
         const config = JSON.parse(fs.readFileSync(CONFIG, 'utf8'));
 
-        newPositions.forEach(({ id, x, y }) => {
+        newPositions.forEach(({ id, order, x, y }) => {
           const modal = config.modals.find(m => m.id === id);
           if (modal) {
+            if (order !== undefined) modal.order = order;
             modal.position.x = x;
             modal.position.y = y;
           }
