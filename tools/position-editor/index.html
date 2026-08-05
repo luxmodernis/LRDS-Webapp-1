@@ -147,14 +147,11 @@
       border-radius: 8px;
       padding: 8px 12px;
       font-size: 13px;
-      cursor: grab;
-      user-select: none;
-      transition: border-color 0.15s, opacity 0.15s;
+      cursor: pointer;
+      transition: border-color 0.15s;
     }
-    .pos-row.dragging { cursor: grabbing; opacity: 0.4; }
     .pos-row:hover { border-color: #999; }
     .pos-row.active { border-color: #2563eb; background: #f5f8ff; }
-    .pos-row.drop-target { border-color: #2563eb; border-style: dashed; }
 
     .pos-order { font-family: monospace; font-size: 12px; color: #999; min-width: 18px; }
     .pos-names { display: flex; flex-direction: column; min-width: 0; flex: 1; }
@@ -204,7 +201,7 @@
 
   <div id="panel">
     <h1>Éditeur de positions</h1>
-    <p class="hint">Fais glisser les boutons <strong>+</strong> sur le diaporama. Clique sur une carte pour centrer le cadre mobile dessus. Glisse une carte sur une autre pour changer l'ordre d'appel. Le rectangle bleu représente la largeur d'un écran mobile (393px).</p>
+    <p class="hint">Fais glisser les boutons <strong>+</strong> sur le diaporama pour ajuster leur position. Clique sur une carte pour centrer le cadre mobile dessus. Le rectangle bleu représente la largeur d'un écran mobile (393px).</p>
 
     <div id="positions-list"></div>
 
@@ -411,63 +408,10 @@ function renderList() {
       <span class="pos-coords">x: ${pos.x.toFixed(2)}%<br>y: ${pos.y.toFixed(2)}%</span>
     `;
     row.addEventListener('click', () => centerMobileFrameOn(pos.x));
-    setupRowReorderDrag(row, pos);
     posList.appendChild(row);
   });
 }
 
-function setupRowReorderDrag(row, pos) {
-  let currentDropTarget = null;
-
-  function onStart() {
-    row.classList.add('dragging');
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('mouseup', onEnd);
-    window.addEventListener('touchend', onEnd);
-  }
-  function onMove(e) {
-    if (e.cancelable) e.preventDefault();
-    const client = e.touches ? e.touches[0] : e;
-    const targetRow = document.elementFromPoint(client.clientX, client.clientY)?.closest('.pos-row');
-    if (currentDropTarget && currentDropTarget !== targetRow) {
-      currentDropTarget.classList.remove('drop-target');
-      currentDropTarget = null;
-    }
-    if (targetRow && targetRow !== row) {
-      targetRow.classList.add('drop-target');
-      currentDropTarget = targetRow;
-    }
-  }
-  function onEnd() {
-    row.classList.remove('dragging');
-    window.removeEventListener('mousemove', onMove);
-    window.removeEventListener('touchmove', onMove);
-    window.removeEventListener('mouseup', onEnd);
-    window.removeEventListener('touchend', onEnd);
-    if (currentDropTarget) {
-      currentDropTarget.classList.remove('drop-target');
-      reorderModal(pos.id, currentDropTarget.dataset.id);
-      currentDropTarget = null;
-    }
-  }
-
-  row.addEventListener('mousedown', onStart);
-  row.addEventListener('touchstart', onStart, { passive: true });
-}
-
-function reorderModal(draggedId, targetId) {
-  if (draggedId === targetId) return;
-  const fromIndex = positions.findIndex(p => p.id === draggedId);
-  const toIndex   = positions.findIndex(p => p.id === targetId);
-  if (fromIndex === -1 || toIndex === -1) return;
-  const [moved] = positions.splice(fromIndex, 1);
-  positions.splice(toIndex, 0, moved);
-  positions.forEach((p, i) => { p.order = i + 1; });
-  renderList();
-  renderButtons();
-  updateJSON();
-}
 
 function updateListCoords() {
   positions.forEach(pos => {
@@ -479,7 +423,7 @@ function updateListCoords() {
 
 function updateJSON() {
   const out = positions.map(p =>
-    `  { "id": "${p.id}", "order": ${p.order}, "position": { "x": ${p.x.toFixed(2)}, "y": ${p.y.toFixed(2)} } }`
+    `  { "id": "${p.id}", "position": { "x": ${p.x.toFixed(2)}, "y": ${p.y.toFixed(2)} } }`
   ).join(',\n');
   jsonOutput.value = `[\n${out}\n]`;
 }
