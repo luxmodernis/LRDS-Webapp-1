@@ -50,6 +50,7 @@ const dom = {
   progressDot:      $('progressDot'),
   btnQuitWrap:      $('btnQuitWrap'),
   btnQuit:          $('btnQuit'),
+  btnCross:         $('btnCross'),
   modalOverlay:     $('modalOverlay'),
   modalImg:         $('modalImg'),
   modalTitle:       $('modalTitle'),
@@ -106,6 +107,7 @@ async function init() {
   setupSuite();
   setupRetour();
   setupQuit();
+  setupCross();
   window.addEventListener('resize', onResize);
 
   preloadModalImages();
@@ -118,6 +120,7 @@ function applyAppTexts() {
   const t = state.texts.app;
   dom.instructionText.textContent = t.instructionDefault;
   dom.btnQuit.textContent = t.labelQuit;
+  dom.btnCross.setAttribute('aria-label', t.labelQuit);
   dom.btnSuite.textContent = t.labelSuite;
   dom.btnRetour.textContent = t.labelBack;
 }
@@ -567,6 +570,21 @@ function setupRetour() {
 function setupQuit() {
   dom.btnQuit.addEventListener('click', () => {
     if (window.ScormBridge) ScormBridge.terminate();
+  });
+}
+
+// Croix à côté de la barre de progression du panoramique : permet de
+// quitter à tout moment, contrairement au bouton QUITTER qui n'apparaît
+// qu'une fois toutes les modales visitées (et reporte donc toujours 100%).
+// On reporte explicitement le nombre de modales déjà ouvertes avant de
+// terminer, pour que le LMS connaisse la progression réelle à cet instant.
+function setupCross() {
+  dom.btnCross.addEventListener('click', () => {
+    const total = (state.config.modals || []).length;
+    if (window.ScormBridge) {
+      if (total > 0) ScormBridge.reportProgress(state.visited.size / total);
+      ScormBridge.terminate();
+    }
   });
 }
 
