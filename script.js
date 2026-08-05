@@ -102,7 +102,13 @@ async function init() {
 
   computeScrollBounds();
   renderPlusButtons();
-  restoreProgress();
+  // Ne rejoue l'animation d'intro que si l'utilisateur n'a encore ouvert
+  // aucune modale lors d'une session précédente : s'il en a visité au
+  // moins une, l'expérience a déjà été vue une fois, la lui refaire subir
+  // à chaque relance serait de la friction plutôt que de la découverte.
+  // Une session de retour sans aucune visite (fermée avant d'avoir ouvert
+  // quoi que ce soit) est traitée comme une première visite.
+  const hasReturningProgress = restoreProgress();
   if (state.allVisited) showCompletionState();
   setupDrag();
   setupProgressBar();
@@ -114,7 +120,11 @@ async function init() {
 
   preloadModalImages();
   state.readyForIntro = true;
-  playIntroAnimation();
+  if (hasReturningProgress) {
+    skipIntroAnimation();
+  } else {
+    playIntroAnimation();
+  }
 }
 
 // Applique les textes généraux (hors modales) chargés depuis texts.html
@@ -294,6 +304,17 @@ function playIntroAnimation() {
   }, 400);
 }
 
+// Session de retour ayant déjà visité au moins une modale : pas de pan
+// automatique ni d'apparition séquentielle des boutons — on affiche l'état
+// final directement (scroll à 0, tous les boutons visibles d'un coup).
+function skipIntroAnimation() {
+  setScrollX(0);
+  document.querySelectorAll('.plus-btn').forEach(btn => btn.classList.add('visible'));
+  state.introPanning = false;
+  state.animating = false;
+  state.introComplete = true;
+}
+
 function showButtonsSequentially() {
   const buttons = [...document.querySelectorAll('.plus-btn')];
   const sorted = buttons.sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left));
@@ -451,10 +472,15 @@ function persistState() {
 // blanche). Silencieux si aucune sauvegarde valide n'est trouvée. Contrairement
 // à webapp-2, il n'y a pas d'ordre/cible à restaurer : on peut visiter les
 // modales dans n'importe quel ordre.
+// Renvoie true si au moins une modale avait déjà été visitée lors d'une
+// session précédente — signal utilisé par init() pour sauter l'animation
+// d'intro (cf. skipIntroAnimation) : une sauvegarde sans aucune visite
+// (session fermée avant d'avoir rien ouvert) est traitée comme une
+// première visite, l'intro se rejoue normalement.
 function restoreProgress() {
-  if (!window.ScormBridge) return;
+  if (!window.ScormBridge) return false;
   const saved = ScormBridge.loadState();
-  if (!saved || !Array.isArray(saved.visited)) return;
+  if (!saved || !Array.isArray(saved.visited)) return false;
 
   const validIds = new Set((state.config.modals || []).map(m => m.id));
   saved.visited.forEach(id => {
@@ -466,6 +492,8 @@ function restoreProgress() {
   if (total > 0 && state.visited.size >= total) {
     state.allVisited = true;
   }
+
+  return state.visited.size > 0;
 }
 
 function showCompletionState() {
