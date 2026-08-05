@@ -17,6 +17,30 @@
 }
 
 /* ===========================
+   TYPO — variables pilotées par Typo-Manager (réglages par langue)
+   =========================== */
+:root {
+  --font-family-main: 'Diptyque Saint-Germain', Georgia, 'Times New Roman', serif;
+  --font-size-delta: 0px;
+  --line-height-extra: 0;
+}
+
+/* ===========================
+   RTL (arabe...) — cf. RTL_LANGS dans script.js. Uniquement le texte se
+   lit en RTL : la mise en page (panoramique, animation des modales) reste
+   toujours identique au FR, donc on ne touche jamais au `dir` du document,
+   seulement à la `direction` des éléments de texte ci-dessous.
+   =========================== */
+.rtl-text .instruction-text,
+.rtl-text .btn-pill,
+.rtl-text .modal-title,
+.rtl-text .modal-text p,
+.rtl-text .modal-text .label-section,
+.rtl-text .modal-consigne {
+  direction: rtl;
+}
+
+/* ===========================
    RESET & BASE
    =========================== */
 *, *::before, *::after {
@@ -30,7 +54,7 @@ html, body {
   background: #fff;
 }
 body {
-  font-family: 'Diptyque Saint-Germain', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-main);
   font-weight: 400;
   color: #000;
   -webkit-font-smoothing: antialiased;
@@ -72,8 +96,8 @@ img {
   padding: clamp(22px, 5vh, 48px) 40px;
 }
 .instruction-text {
-  font-size: clamp(15px, 4.5vw, 18px);
-  line-height: 1.4;
+  font-size: clamp(calc(15px + var(--font-size-delta)), 4.5vw, calc(18px + var(--font-size-delta)));
+  line-height: calc(1.4 + var(--line-height-extra));
   text-align: center;
   color: #000;
   transition: opacity 0.4s ease;
@@ -228,9 +252,9 @@ img {
   border: 2px solid #fff;
   border-radius: 40px;
   padding: 14px 50px;
-  font-family: 'Diptyque Saint-Germain', Georgia, serif;
+  font-family: var(--font-family-main);
   font-weight: 700;
-  font-size: clamp(16px, 4vw, 20px);
+  font-size: clamp(calc(16px + var(--font-size-delta)), 4vw, calc(20px + var(--font-size-delta)));
   letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -276,9 +300,9 @@ img {
   text-align: center;
 }
 .modal-title {
-  font-size: clamp(16px, min(6vw, 2.8vh), 24px);
+  font-size: clamp(calc(16px + var(--font-size-delta)), min(6vw, 2.8vh), calc(24px + var(--font-size-delta)));
   font-weight: 700;
-  line-height: 1.25;
+  line-height: calc(1.25 + var(--line-height-extra));
   color: #000;
 }
 
@@ -310,10 +334,15 @@ img {
 .modal-img-wrap {
   flex: 0 0 auto;
   width: calc(100% - 64px);
+  max-height: clamp(130px, 28vh, 220px);
   margin: clamp(6px, 1.2vh, 14px) auto 0;
+  display: flex;
+  align-items: flex-start;
 }
 .modal-img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: auto;
   display: block;
   border-radius: 4px;
@@ -330,13 +359,13 @@ img {
   padding: 0 32px 0;
 }
 .modal-text p {
-  font-size: clamp(13px, min(4vw, 2.2vh), 17px);
-  line-height: 1.5;
+  font-size: clamp(calc(13px + var(--font-size-delta)), min(4vw, 2.2vh), calc(17px + var(--font-size-delta)));
+  line-height: calc(1.5 + var(--line-height-extra));
   color: #000;
   margin-bottom: 10px;
 }
 .modal-text .label-section {
-  font-size: clamp(9px, 2.8vw, 11px);
+  font-size: clamp(calc(9px + var(--font-size-delta)), 2.8vw, calc(11px + var(--font-size-delta)));
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -386,8 +415,8 @@ img {
   gap: clamp(6px, 1.2vh, 14px); /* marge A */
 }
 .modal-consigne {
-  font-size: clamp(15px, 4.5vw, 18px);
-  line-height: 1.4;
+  font-size: clamp(calc(15px + var(--font-size-delta)), 4.5vw, calc(18px + var(--font-size-delta)));
+  line-height: calc(1.4 + var(--line-height-extra));
   text-align: center;
   color: #000;
   padding: 0 40px;
