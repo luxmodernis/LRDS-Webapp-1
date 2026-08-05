@@ -102,6 +102,8 @@ async function init() {
 
   computeScrollBounds();
   renderPlusButtons();
+  restoreProgress();
+  if (state.allVisited) showCompletionState();
   setupDrag();
   setupProgressBar();
   setupSuite();
@@ -427,11 +429,42 @@ function checkCompletion() {
   // Reporte la progression au LMS à chaque modale visitée, pour qu'elle
   // soit connue même si l'utilisateur quitte avant d'avoir tout vu.
   if (window.ScormBridge) ScormBridge.reportProgress(state.visited.size / total);
+  persistState();
 
   if (state.visited.size >= total && !state.allVisited) {
     state.allVisited = true;
     if (window.ScormBridge) ScormBridge.reportCompleted();
     showCompletionState();
+  }
+}
+
+// Sauvegarde l'état courant (modales visitées) dans cmi.suspend_data, pour
+// que le parcours reprenne là où l'utilisateur l'a quitté au prochain
+// lancement — sans quoi il doit tout revisiter.
+function persistState() {
+  if (!window.ScormBridge) return;
+  ScormBridge.saveState({ visited: [...state.visited] });
+}
+
+// Relit l'état sauvegardé au lancement précédent (s'il existe) et remet
+// le parcours dans le même état : modales déjà visitées marquées (icône
+// blanche). Silencieux si aucune sauvegarde valide n'est trouvée. Contrairement
+// à webapp-2, il n'y a pas d'ordre/cible à restaurer : on peut visiter les
+// modales dans n'importe quel ordre.
+function restoreProgress() {
+  if (!window.ScormBridge) return;
+  const saved = ScormBridge.loadState();
+  if (!saved || !Array.isArray(saved.visited)) return;
+
+  const validIds = new Set((state.config.modals || []).map(m => m.id));
+  saved.visited.forEach(id => {
+    if (!validIds.has(id)) return;
+    markVisited(id);
+  });
+
+  const total = (state.config.modals || []).length;
+  if (total > 0 && state.visited.size >= total) {
+    state.allVisited = true;
   }
 }
 
