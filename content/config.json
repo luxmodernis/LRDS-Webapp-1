@@ -17,7 +17,7 @@
       "order": 2,
       "position": {
         "x": 9.96,
-        "y": 49.30
+        "y": 49.3
       },
       "image": "content/modals/modal-02/image.webp",
       "packshot": "content/modals/modal-02/packshot.webp",
@@ -38,8 +38,8 @@
       "id": "modal-04",
       "order": 4,
       "position": {
-        "x": 18.44,
-        "y": 11.55
+        "x": 17.38,
+        "y": 13.87
       },
       "image": "content/modals/modal-04/image.webp",
       "packshot": "content/modals/modal-04/packshot.webp",
@@ -49,8 +49,8 @@
       "id": "modal-05",
       "order": 5,
       "position": {
-        "x": 36.87,
-        "y": 30.61
+        "x": 31.18,
+        "y": 26.17
       },
       "image": "content/modals/modal-05/image.webp",
       "packshot": "content/modals/modal-05/packshot.webp",
