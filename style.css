@@ -310,6 +310,16 @@ img {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Sur desktop, .modal-overlay occupe tout le viewport et étirerait la
+     modale sur toute sa largeur (l'image/le texte, plus étroits que leur
+     conteneur, se retrouvent alors plaqués à gauche). On plafonne donc la
+     largeur au cadre mobile visé (393px, cf. frame Figma "iPhone 17") et
+     on centre le bloc — le texte à l'intérieur reste ferré à gauche, seul
+     son conteneur est centré. Sans effet en usage réel (mobile), où le
+     viewport ne dépasse jamais cette largeur. */
+  width: 100%;
+  max-width: 393px;
+  margin: 0 auto;
 }
 
 /* Titre fixe — ne slide pas */
