@@ -82,12 +82,16 @@
         } catch (e) { return false; }
       },
       // Clé libre côté ToM (même mécanisme que 'progress') — sert à
-      // reprendre la partie là où l'utilisateur l'a quittée.
+      // reprendre la partie là où l'utilisateur l'a quittée. Attention :
+      // 'suspendData' en camelCase côté ToM.data (namespace propre à la
+      // JS library), à ne pas confondre avec 'cmi.suspend_data' (nom du
+      // champ SCORM utilisé par les drivers 1.2/2004 ci-dessous) — cf.
+      // doc ToM, table des clés de ToM.data.set().
       setSuspendData: function (str) {
-        try { api.data.set('suspend_data', str); return true; } catch (e) { return false; }
+        try { api.data.set('suspendData', str); return true; } catch (e) { return false; }
       },
       getSuspendData: function () {
-        try { return api.data.get('suspend_data') || ''; } catch (e) { return ''; }
+        try { return api.data.get('suspendData') || ''; } catch (e) { return ''; }
       },
     };
   }

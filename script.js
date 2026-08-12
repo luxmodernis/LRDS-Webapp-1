@@ -658,7 +658,15 @@ function onResize() {
 /* ===========================
    START
    =========================== */
-document.addEventListener('DOMContentLoaded', () => {
+// Démarre sur `load`, pas `DOMContentLoaded` : la doc ToM ("ToM JavaScript
+// library usage") recommande explicitement de ne lire window.top.ToM
+// qu'après l'événement load de l'iframe, `window.ToM` n'étant pas garanti
+// injecté par l'app au moment du DOMContentLoaded. Démarrer trop tôt fait
+// silencieusement échouer findToM() → repli sur le driver no-op → plus
+// aucun report SCORM envoyé à ToM (constaté avec la croix de sortie, qui
+// est la première fonctionnalité vraiment testée sur ToM réel plutôt que
+// sur SCORM Cloud).
+window.addEventListener('load', () => {
   if (window.ScormBridge) ScormBridge.initialize();
   init();
 });
