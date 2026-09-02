@@ -32,7 +32,6 @@
       <file href="assets/fonts/DiptyqueSaintGermain-Regular.woff"/>
       <file href="assets/fonts/DiptyqueSaintGermain-Bold.woff2"/>
       <file href="assets/fonts/DiptyqueSaintGermain-Bold.woff"/>
-      <file href="assets/logo.png"/>
       <file href="assets/logo.svg"/>
       <file href="assets/close-circle.svg"/>
       <file href="assets/close-icon.svg"/>
@@ -41,8 +40,9 @@
       <file href="assets/plus-black-icon.svg"/>
       <file href="assets/plus-white-circle.svg"/>
       <file href="assets/plus-white-icon.svg"/>
+      <file href="assets/progress-cross.svg"/>
       <file href="content/config.json"/>
-      <file href="content/texts.html"/>
+      <file href="content/texts/fr.html"/>
       <file href="content/slides/panoramic.webp"/>
       <file href="content/modals/modal-01/image.webp"/>
       <file href="content/modals/modal-01/packshot.webp"/>
