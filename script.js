@@ -333,6 +333,20 @@ function showButtonsSequentially() {
 /* ===========================
    PLUS BUTTONS
    =========================== */
+// Réessaie le chargement d'une image en cas d'échec réseau ponctuel
+// (timeout, coupure momentanée sur mobile) — filet de sécurité
+// indépendant du risque de déduplication de fichiers par le LMS (déjà
+// traité en gardant chaque asset binaire unique, voir assets/*.svg et
+// content/**/*.webp). Cache-busting sur les tentatives suivantes pour
+// éviter de retomber sur une éventuelle réponse d'erreur mise en cache.
+function loadImageWithRetry(img, src, attemptsLeft = 2) {
+  img.onerror = () => {
+    if (attemptsLeft <= 0) { img.onerror = null; return; }
+    setTimeout(() => loadImageWithRetry(img, src, attemptsLeft - 1), 600);
+  };
+  img.src = attemptsLeft === 2 ? src : `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+}
+
 function renderPlusButtons() {
   const modals = state.config.modals || [];
 
@@ -346,13 +360,13 @@ function renderPlusButtons() {
 
     const circle = document.createElement('img');
     circle.className = 'btn-circle';
-    circle.src = ASSETS.plusBlackCircle;
     circle.alt = '';
+    loadImageWithRetry(circle, ASSETS.plusBlackCircle);
 
     const icon = document.createElement('img');
     icon.className = 'btn-icon';
-    icon.src = ASSETS.plusBlackIcon;
     icon.alt = '';
+    loadImageWithRetry(icon, ASSETS.plusBlackIcon);
 
     btn.appendChild(circle);
     btn.appendChild(icon);
@@ -374,8 +388,8 @@ function markVisited(id) {
   state.visited.add(id);
   const btn = getPlusBtn(id);
   if (btn) {
-    btn.querySelector('.btn-circle').src = ASSETS.plusWhiteCircle;
-    btn.querySelector('.btn-icon').src = ASSETS.plusWhiteIcon;
+    loadImageWithRetry(btn.querySelector('.btn-circle'), ASSETS.plusWhiteCircle);
+    loadImageWithRetry(btn.querySelector('.btn-icon'), ASSETS.plusWhiteIcon);
   }
 }
 
