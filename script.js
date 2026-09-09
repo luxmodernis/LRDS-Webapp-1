@@ -130,7 +130,7 @@ async function init() {
 // Applique les textes généraux (hors modales) chargés depuis texts.html
 function applyAppTexts() {
   const t = state.texts.app;
-  dom.instructionText.textContent = t.instructionDefault;
+  dom.instructionText.innerHTML = t.instructionDefault;
   dom.btnQuit.textContent = t.labelQuit;
   dom.btnCross.setAttribute('aria-label', t.labelQuit);
   dom.btnSuite.textContent = t.labelSuite;
@@ -410,7 +410,7 @@ function openModal(id) {
   const texts = state.texts.modals[id] || {};
   dom.modalTitle.innerHTML   = texts.title || '';
   dom.modalText.innerHTML    = texts.text  || '';
-  dom.modalConsigne.textContent = state.texts.app.consigneDefault;
+  dom.modalConsigne.innerHTML = state.texts.app.consigneDefault;
 
   // Images (préchargées — pas de cache-busting)
   dom.modalImg.src         = modal.image    || '';
@@ -513,7 +513,7 @@ function restoreProgress() {
 function showCompletionState() {
   dom.instructionText.style.opacity = '0';
   setTimeout(() => {
-    dom.instructionText.textContent = state.texts.app.instructionComplete;
+    dom.instructionText.innerHTML = state.texts.app.instructionComplete;
     dom.instructionText.classList.add('centered');
     dom.instructionText.style.opacity = '1';
   }, 400);
