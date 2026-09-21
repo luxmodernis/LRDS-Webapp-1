@@ -28,7 +28,7 @@ script.js             Toute la logique app
 scorm.js               Bridge SCORM/ToM (voir plus bas)
 content/
   config.json           Positions des boutons + chemins des assets (PAS de texte)
-  texts.html              TOUS les textes de l'app — fichier à traduire (voir plus bas)
+  texts/fr.html            TOUS les textes de l'app en FR — SEUL fichier de langue présent ici (voir plus bas)
   slides/panoramic.webp     Image panoramique
   modals/modal-01../09/       image.webp, label.png, packshot.png par soin
 tools/
@@ -52,16 +52,30 @@ tools/
   (icône du bouton qui passe au blanc, apparition du bouton QUITTER)
   est retardé jusqu'à ce que la modale soit *totalement* opaque —
   sinon on l'aperçoit par transparence pendant le fondu d'ouverture.
-- **Textes centralisés** (`content/texts.html`) : un seul fichier
-  HTML structuré et commenté contient tous les textes (app + 9
-  modales). C'est le fichier à dupliquer/traduire pour produire un
-  package par langue sur Teach on Mars — voir les commentaires en
-  tête du fichier. `config.json` ne contient aucun texte, seulement
-  positions et chemins d'assets.
+- **Textes centralisés, un seul package multilingue, ce repo ne contient
+  que le FR** (`content/texts/fr.html`) : les traductions, les polices
+  additionnelles et `content/lang-settings.json` **ne sont jamais écrits
+  ici** — ils vivent uniquement dans `Typo-Manager/translations/` et
+  `Typo-Manager/config/`, et ne sont fusionnés que dans le zip généré par
+  l'outil (dossier temporaire, jamais dans ce repo). **Pas de zip par
+  langue** — un seul package est déposé sur Teach on Mars, commun à
+  toutes les langues du training course (fonctionnement standard de ToM
+  pour les web activities, cf. `_doc ToM/ToM Web Activity documentation.pdf`
+  section "Content translation"). Au chargement, `script.js` détecte la
+  langue du cours via `ScormBridge.getContentLanguage()`, charge
+  `content/texts/<lang>.html` (repli sur `fr.html` si absent — le cas en
+  local/Vercel, où seul le FR existe) et applique la typo/taille/interlignage
+  de `content/lang-settings.json` s'il existe (3 custom properties CSS
+  dans `style.css` : `--font-family-main`, `--font-size-delta`,
+  `--line-height-extra`, avec repli neutre si le fichier est absent).
+  `config.json` ne contient aucun texte, seulement positions et chemins
+  d'assets. Tout le workflow multilingue est géré par l'outil
+  `Typo-Manager/` (voir son propre `CLAUDE.md`, à la racine du dossier
+  parent).
 - **Préchargement** : toutes les images des modales sont préchargées
   au démarrage (`preloadModalImages`) pour que l'ouverture soit
-  instantanée. `texts.html` et `config.json` sont fetchés une fois au
-  démarrage aussi.
+  instantanée. `texts/<lang>.html` et `config.json` sont fetchés une fois
+  au démarrage aussi.
 - **SCORM** (`scorm.js`) : détecte automatiquement Teach on Mars /
   SCORM 2004 / SCORM 1.2 en remontant la chaîne parent/opener. Reporte
   la progression (`visited/total`) à **chaque** modale visitée, pas
@@ -70,6 +84,9 @@ tools/
   toutes les méthodes sont des no-op silencieux. Inspiré du driver de
   `github.com/luxmodernis/template-scorm-project` (repo de référence
   pour l'intégration SCORM/ToM, à consulter si besoin d'étendre).
+  `ScormBridge.getContentLanguage()` lit `ToM.env.get('CONTENT_LANGUAGE')`
+  (namespace `ToM.env`, indépendant du driver de reporting `ToM.data` /
+  SCORM ci-dessus) — retourne `null` hors LMS.
 - **Password gate** : protection temporaire pour les reviews client
   (mot de passe en dur dans `script.js`, `PW_CORRECT`). À supprimer
   quand le projet sera validé — l'intro doit alors démarrer directement
